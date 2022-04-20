@@ -116,7 +116,7 @@ def Q0_check_usuario(id_cliente:str):
         WHERE id_cliente = %s
         LIMIT 1
         """,
-        [id_cliente]
+        (id_cliente)
     )
     if existe_usuario: 
         return True
@@ -130,7 +130,7 @@ def Q1_alta_usuario(id_cliente:str, nombre_cliente:str, pais:str, membresia:str)
         WHERE id_cliente = %s
         LIMIT 1
         """,
-        [id_cliente]
+        (id_cliente)
     )
 
     if existe_usuario:
@@ -304,7 +304,7 @@ def Q3_categoría_preferida_por_cliente(id_cliente:str):
         WHERE id_cliente=%s
         GROUP BY categoria
         """,
-        [id_cliente]
+        (id_cliente)
     )
 
     resultado = pd.DataFrame(resultado.all(), columns=['cateogoria', 'avg_calificacion'])
@@ -341,6 +341,16 @@ def Q4_mas_disfrutaron_libro(titulo_libro:str, autor_libro:str):
     )
         
     return pd.DataFrame(resultado_clientes.all())
+
+def Q6_user_libros(id_cliente: str): 
+    resultado = session.execute(
+        """
+        SELECT titulo_libro, autor_libro, categoria, calificacion FROM libros_por_cliente
+        WHERE id_cliente=%s
+        """,
+        (id_cliente)
+    )
+    return pd.DataFrame(resultado.all())
 
 ####################################################################################################################################
 #Cargando datos 

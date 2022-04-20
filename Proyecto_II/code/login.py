@@ -7,7 +7,8 @@ import pandas as pd
 import numpy as np
 from cassandra.cluster import Cluster
 from pandastable import Table, TableModel 
-dfsuper = pd.read_csv('Proyecto_II\DatosBBDDE_test.csv')
+
+dfsuper = pd.read_csv('DatosBBDDE_test.csv')
 universal_categorias = ['Académico', 'Autoayuda', 'Autobiografía', 'Ciencia Ficción','Cuento', 'Divulgación',
                         'Drama', 'Ensayo', 'Fantasia', 'Fantasia Oscura', 'Ficcion Distópica', 'Ficción Doméstica',
                         'Misterio', 'Novela', 'Novela Filosófica', 'Novela Realista', 'Realismo Mágico', 'Suspenso',
@@ -27,7 +28,7 @@ class Login_window(Frame):
         self.root=root
         self.root.title("Login")
         self.root.geometry("1550x800+0+0")
-        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -35,7 +36,7 @@ class Login_window(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=400)
 
-        img1 = Image.open("Proyecto_II/img/img_logo.png")
+        img1 = Image.open("img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg1=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -52,7 +53,7 @@ class Login_window(Frame):
         self.txtuser.place(x=40, y=180, width=240)
 
         #Icon Image
-        img2 = Image.open("Proyecto_II/img/img_user.png")
+        img2 = Image.open("img/img_user.png")
         img2 = img2.resize((25,25), Image.ANTIALIAS)
         self.photoImage2= ImageTk.PhotoImage(img2)
         lblimg1=Label(image=self.photoImage2, bg="black", borderwidth=0)
@@ -100,7 +101,7 @@ class Register(Frame):
         self.root.title("Register")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -108,7 +109,7 @@ class Register(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=600)
 
-        img1 = Image.open("Proyecto_II/img/img_logo.png")
+        img1 = Image.open("img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -143,7 +144,7 @@ class Register(Frame):
         self.txtmembership.place(x=40, y=370, width=240)
 
         #Icon Image
-        img2 = Image.open("Proyecto_II/img/img_user.png")
+        img2 = Image.open("img/img_user.png")
         img2 = img2.resize((25,25), Image.ANTIALIAS)
         self.photoImage2= ImageTk.PhotoImage(img2)
         lblimg1=Label(image=self.photoImage2, bg="black", borderwidth=0)
@@ -174,7 +175,7 @@ class Register(Frame):
                 WHERE id_cliente = %s
                 LIMIT 1
                 """,
-                [usernameVal]
+                (usernameVal)
             )
             if existe_usuario:
                 messagebox.showerror("Error", "El usuario ya existe, favor de hacer login")
@@ -200,7 +201,7 @@ class Updating_books(Frame):
         self.root.title("Booksr")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -208,7 +209,7 @@ class Updating_books(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=600)
 
-        img1 = Image.open("Proyecto_II/img/img_logo.png")
+        img1 = Image.open("img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -254,7 +255,28 @@ class Updating_books(Frame):
         exitbtn.place(x=110, y=510, width=120, height=35)
     
     def my_ratings(self):
-        pass
+        global supertemporalUser
+        if supertemporalUser==None:
+            return 
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+
+        resultado = session.execute(
+            """
+            SELECT titulo_libro, autor_libro, categoria, calificacion FROM libros_por_cliente
+            WHERE id_cliente=%s
+            """,
+            [supertemporalUser]
+        )
+
+        res= pd.DataFrame(resultado.all())
+        pt = Table(f, dataframe=res,
+                                showtoolbar=True, showstatusbar=True)
+        pt.show()
 
     def login_window(self): 
         global supertemporalUser
@@ -435,7 +457,7 @@ class Admin_options(Frame):
         self.root.title("Booksr")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
