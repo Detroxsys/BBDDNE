@@ -310,9 +310,8 @@ def Q3_categoría_preferida_por_cliente(id_cliente:str):
     resultado = pd.DataFrame(resultado.all(), columns=['cateogoria', 'avg_calificacion'])
     resultado = resultado.sort_values(by='avg_calificacion', ascending=False)
     resultado = resultado.values[0]
-
-    return (resultado[0], resultado[1])
-
+    res=pd.DataFrame([(resultado[0], resultado[1])], columns=["Categoria", "Calificacion"])
+    return (res)
 
 def Q4_mas_disfrutaron_libro(titulo_libro:str, autor_libro:str):
     

@@ -1,3 +1,4 @@
+from email import message
 from tkinter import* #pip install tk 
 from tkinter import ttk
 from PIL import Image, ImageTk  #pip install pillow
@@ -6,8 +7,11 @@ import pandas as pd
 import numpy as np
 from cassandra.cluster import Cluster
 from pandastable import Table, TableModel 
-dfsuper = pd.read_csv('DatosBBDDE_test.csv')
-universal_categorias = ['Fatansia', 'Ciencia Ficcion', 'Horror', 'AutoAyuda', 'Random']
+dfsuper = pd.read_csv('Proyecto_II\DatosBBDDE_test.csv')
+universal_categorias = ['Académico', 'Autoayuda', 'Autobiografía', 'Ciencia Ficción','Cuento', 'Divulgación',
+                        'Drama', 'Ensayo', 'Fantasia', 'Fantasia Oscura', 'Ficcion Distópica', 'Ficción Doméstica',
+                        'Misterio', 'Novela', 'Novela Filosófica', 'Novela Realista', 'Realismo Mágico', 'Suspenso',
+                        'Teatro', 'Terror', 'Thriller', 'Thriller histórico', 'Tragedia', 'Wuxia', 'Xianxia']
 
 #Conexion al cluster
 #Es importante haber mapeado el puerto usando -p 9042:9042 al crear el contenedor
@@ -16,15 +20,14 @@ cluster = Cluster(['127.0.0.1'], port=9042)
 session = cluster.connect()
 session.set_keyspace('bd_libros')
 
-
+supertemporalUser=None
 #Ventas de interfaz grafica
 class Login_window(Frame):
     def __init__(self, root):
         self.root=root
         self.root.title("Login")
         self.root.geometry("1550x800+0+0")
-        
-        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -32,7 +35,7 @@ class Login_window(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=400)
 
-        img1 = Image.open("img/img_logo.png")
+        img1 = Image.open("Proyecto_II/img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg1=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -49,7 +52,7 @@ class Login_window(Frame):
         self.txtuser.place(x=40, y=180, width=240)
 
         #Icon Image
-        img2 = Image.open("img/img_user.png")
+        img2 = Image.open("Proyecto_II/img/img_user.png")
         img2 = img2.resize((25,25), Image.ANTIALIAS)
         self.photoImage2= ImageTk.PhotoImage(img2)
         lblimg1=Label(image=self.photoImage2, bg="black", borderwidth=0)
@@ -82,10 +85,13 @@ class Login_window(Frame):
                 """,
                 [usernameVal]
             )
-            if existe_usuario: 
-                messagebox.showinfo("Success", f"Bienvenido {usernameVal}")
+            if existe_usuario:
+                global supertemporalUser 
+                supertemporalUser=usernameVal
+                messagebox.showinfo("Success", f"Bienvenido {supertemporalUser}")
                 self.root.switch_frame(Updating_books)
             else: 
+                self.txtuser.delete(0,END)
                 messagebox.showerror("Error", "Usuario no existe,debe registrarse")
 
 class Register(Frame):
@@ -94,7 +100,7 @@ class Register(Frame):
         self.root.title("Register")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -102,7 +108,7 @@ class Register(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=600)
 
-        img1 = Image.open("img/img_logo.png")
+        img1 = Image.open("Proyecto_II/img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -137,7 +143,7 @@ class Register(Frame):
         self.txtmembership.place(x=40, y=370, width=240)
 
         #Icon Image
-        img2 = Image.open("img/img_user.png")
+        img2 = Image.open("Proyecto_II/img/img_user.png")
         img2 = img2.resize((25,25), Image.ANTIALIAS)
         self.photoImage2= ImageTk.PhotoImage(img2)
         lblimg1=Label(image=self.photoImage2, bg="black", borderwidth=0)
@@ -162,9 +168,31 @@ class Register(Frame):
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
             return None
         else:
-            self.root.switch_frame(Updating_books)
-            messagebox.showinfo("Success", "Registro Exitoso")
-
+            existe_usuario = session.execute(
+                """
+                SELECT * FROM libros_por_cliente
+                WHERE id_cliente = %s
+                LIMIT 1
+                """,
+                [usernameVal]
+            )
+            if existe_usuario:
+                messagebox.showerror("Error", "El usuario ya existe, favor de hacer login")
+                self.root.switch_frame(Login_window)
+            else: 
+                session.execute(
+                    """
+                    INSERT INTO libros_por_cliente
+                    (id_cliente, nombre_cliente, pais, membresia)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (usernameVal, nameVal, countrieVal, membershipVal)
+                )      
+                
+                global supertemporalUser
+                supertemporalUser=usernameVal
+                messagebox.showinfo("Success", f"Registro Exitoso, bienvenido {supertemporalUser}")
+                self.root.switch_frame(Updating_books)
 
 class Updating_books(Frame):
     def __init__(self, root):
@@ -172,7 +200,7 @@ class Updating_books(Frame):
         self.root.title("Booksr")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -180,7 +208,7 @@ class Updating_books(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=600)
 
-        img1 = Image.open("img/img_logo.png")
+        img1 = Image.open("Proyecto_II/img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -215,27 +243,191 @@ class Updating_books(Frame):
         self.txtcategory.place(x=40, y=355, width=240)
 
 
-        #Login Button
+        #Buttons
         submitbtn=Button(frame,command=self.ranking, text="Rankear",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
         submitbtn.place(x=110, y=410, width=120, height=35)
 
+        viewbtn=Button(frame,command=self.my_ratings, text="Mis ratings",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        viewbtn.place(x=110, y=460, width=120, height=35)
+
         exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightblue")
-        exitbtn.place(x=110, y=460, width=120, height=35)
+        exitbtn.place(x=110, y=510, width=120, height=35)
+    
+    def my_ratings(self):
+        pass
 
     def login_window(self): 
+        global supertemporalUser
+        supertemporalUser=None
         self.root.switch_frame(Login_window)
 
     def ranking(self): 
+        global supertemporalUser
         booknameVal= self.txtbook.get() 
         authorVal= self.txtauthor.get() 
-        rateVal= self.txtrating.get()
+        rateVal= int(self.txtrating.get())
         categoryVal = self.txtcategory.get()
         if booknameVal=="" or authorVal=="" or rateVal=="" or categoryVal=="":
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
-            return None
         else:
-            messagebox.showinfo("Success", "Libro rankeado")
+            if supertemporalUser:
+                existe_calif= session.execute(
+                    """
+                    SELECT categoria, calificacion FROM libros_por_cliente
+                    WHERE id_cliente=%s AND titulo_libro=%s  AND autor_libro=%s
+                    LIMIT 1
+                    """,
+                    [supertemporalUser, booknameVal, authorVal]
+                )
+                
+                info_previa = existe_calif.one()
+                if info_previa:
+                    confirmacion_del_usuario = messagebox.askyesno(title='Confirmation',
+                    message='La calificación ya existe ¿desea actualizar?')
+                    # pedir a usuario confirma que desea cambiar la calificación
+                    if not confirmacion_del_usuario:
+                        self.txtbook.delete(0, END)
+                        self.txtauthor.delete(0,END)
+                        self.txtrating.set('')
+                        self.txtcategory.set('')
+                        return
 
+                    info_previa = existe_calif.one()
+                    
+                    #Borrar la calificación anterior
+                    session.execute(
+                        """
+                        DELETE FROM clientes_por_libro
+                        WHERE titulo_libro=%s
+                        AND autor_libro=%s
+                        AND calificacion=%s
+                        AND id_cliente=%s
+                        """,
+                        (booknameVal, authorVal, info_previa.calificacion, supertemporalUser)
+                    )
+                    session.execute(
+                        """
+                        DELETE FROM categorias_por_cliente
+                        WHERE id_cliente=%s 
+                        AND categoria=%s
+                        AND titulo_libro=%s
+                        AND autor_libro=%s
+                        AND calificacion=%s
+                        """,
+                        (supertemporalUser, info_previa.categoria, booknameVal, authorVal, info_previa.calificacion)
+                    )
+                    
+                #Agregar la nueva calificación
+                session.execute(
+                    """
+                    INSERT INTO libros_por_cliente 
+                    (id_cliente, titulo_libro, autor_libro, categoria, calificacion)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """,
+                    (supertemporalUser, booknameVal, authorVal, categoryVal, rateVal)
+                )
+                session.execute(
+                    """
+                    INSERT INTO clientes_por_libro 
+                    (titulo_libro, autor_libro, id_cliente, calificacion, categoria)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """,
+                    (booknameVal, authorVal, supertemporalUser, rateVal, categoryVal)
+                )
+                session.execute(
+                    """
+                    INSERT INTO categorias_por_cliente 
+                    (id_cliente, titulo_libro, autor_libro, categoria, calificacion)
+                    VALUES (%s, %s, %s, %s, %s)
+                    """,
+                    (supertemporalUser, booknameVal, authorVal, categoryVal, rateVal)
+                )
+                
+
+                #Actualizar calificaciones promedio
+                calificacion_promedio = session.execute(
+                    """
+                    SELECT AVG(calificacion) FROM clientes_por_libro
+                    WHERE titulo_libro=%s
+                    AND autor_libro=%s
+                    """,
+                    (booknameVal, authorVal)
+                )
+                calificacion_promedio = round(calificacion_promedio.one()[0], 2)
+
+                categorias_del_libro = session.execute(
+                        """
+                        SELECT categoria FROM clientes_por_libro
+                        WHERE titulo_libro =%s
+                        AND autor_libro = %s
+                        """,
+                        (booknameVal, authorVal)
+                )
+                
+                #En caso de que sea la única review que asigna esa categoría al libro y se cambie la categoría, necesitamos
+                #eliminar la fila de la tabla libros_por_categoría
+                if info_previa is not None:
+                    if  info_previa.categoria != categoryVal:
+                        unica_calificacion = True
+                
+                        for row in categorias_del_libro:
+                            if row.categoria == info_previa.categoria: #entonces hay otras reviews que categorizan igual al libro
+                                unica_calificacion = False
+                            session.execute(
+                                """
+                                DELETE FROM libros_por_categoria
+                                WHERE categoria=%s
+                                AND titulo_libro=%s
+                                AND autor_libro= %s
+                                """,
+                                (row.categoria, booknameVal, authorVal)
+                            )
+                            session.execute(
+                                """
+                                INSERT INTO libros_por_categoria
+                                (categoria, titulo_libro, autor_libro, calificacion_promedio)
+                                VALUES (%s, %s, %s, %s)
+                                """,
+                                (row.categoria, booknameVal, authorVal, calificacion_promedio)
+                            )
+                        
+                        if unica_calificacion:
+                            session.execute(
+                                """
+                                DELETE FROM libros_por_categoria
+                                WHERE categoria=%s
+                                AND titulo_libro=%s
+                                AND autor_libro=%s
+                                """,
+                                (info_previa.categoria, booknameVal, authorVal)
+                            )
+                
+                else:
+                    for row in categorias_del_libro:
+                        session.execute(
+                            """
+                            DELETE FROM libros_por_categoria
+                            WHERE categoria=%s
+                            AND titulo_libro=%s
+                            AND autor_libro= %s
+                            """,
+                            (row.categoria, booknameVal, authorVal)
+                        )
+                        session.execute(
+                            """
+                            INSERT INTO libros_por_categoria
+                            (categoria, titulo_libro, autor_libro, calificacion_promedio)
+                            VALUES (%s, %s, %s, %s)
+                            """,
+                            (row.categoria, booknameVal, authorVal, calificacion_promedio)
+                        )
+                self.txtbook.delete(0, END)
+                self.txtauthor.delete(0,END)
+                self.txtrating.set('')
+                self.txtcategory.set('')
+                messagebox.showinfo("Success", "Libro rankeado")
+            else: 
+                messagebox.showerror("Listillo", "No deberías estar aquí sin loguearte")
 
 class Admin_options(Frame):
     def __init__(self, root):
@@ -243,7 +435,7 @@ class Admin_options(Frame):
         self.root.title("Booksr")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -267,11 +459,17 @@ class Admin_options(Frame):
         self.bookname = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.bookname.place(x=400, y=140, width=240)
 
+        clientsperbook_author=Label(frame, text="Autor:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        clientsperbook_author.place(x=110, y=180)
+
+        self.author = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.author.place(x=400, y=180, width=240)
+
         bookspercategory=Label(frame, text="Libros destcadas de la categoría:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
-        bookspercategory.place(x=70, y=180)
+        bookspercategory.place(x=70, y=220)
 
         self.categoryname = ttk.Entry(frame, font =("calibri", 15, "bold"))
-        self.categoryname.place(x=400, y=180, width=240)
+        self.categoryname.place(x=400, y=220, width=240)
 
         #Login Button
         q1=Button(frame,command=self.query1, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
@@ -281,20 +479,35 @@ class Admin_options(Frame):
         q2.place(x=650, y=140, width=120, height=30)
 
         q2=Button(frame,command=self.query3, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
-        q2.place(x=650, y=180, width=120, height=30)
+        q2.place(x=650, y=220, width=120, height=30)
 
         exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightblue")
         exitbtn.place(x=50, y=350, width=120, height=30)
     
     def query1(self):
+        usernameVal = self.username.get()
         newWindow = Toplevel(self.root)
         Frame.__init__(self)
         newWindow.geometry('600x400+200+100')
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
-        df = dfsuper.copy()
-        self.table = pt = Table(f, dataframe=df,
+
+        resultado = session.execute(
+            """
+            SELECT categoria, AVG(calificacion) FROM categorias_por_cliente
+            WHERE id_cliente=%s
+            GROUP BY categoria
+            """,
+            [usernameVal]
+        )
+
+        resultado = pd.DataFrame(resultado.all(), columns=['cateogoria', 'avg_calificacion'])
+        resultado = resultado.sort_values(by='avg_calificacion', ascending=False)
+        resultado = resultado.values[0]
+        res=pd.DataFrame([(resultado[0], resultado[1])], columns=["Categoria", "Calificacion"])
+
+        pt = Table(f, dataframe=res,
                                 showtoolbar=True, showstatusbar=True)
         pt.show()
 
@@ -305,10 +518,40 @@ class Admin_options(Frame):
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
-        df = dfsuper.copy()
-        self.table = pt = Table(f, dataframe=df,
+        booknameVal= self.bookname.get()
+        authorVal  = self.author.get()
+        resultado_max_calif = session.execute(
+            """
+            SELECT MAX(calificacion) FROM clientes_por_libro
+            WHERE titulo_libro=%s
+            AND autor_libro=%s
+            LIMIT 1
+            """,
+            (booknameVal, authorVal)
+        )
+
+        if resultado_max_calif is None:
+            messagebox.showerror('Error', 'No hay ratings para este libro')
+            return
+
+        max_calif = resultado_max_calif.one()[0]
+
+        resultado_clientes = session.execute(
+            """
+            SELECT id_cliente, calificacion FROM clientes_por_libro
+            WHERE titulo_libro=%s
+            AND autor_libro=%s
+            AND calificacion=%s
+            """, 
+            (booknameVal, authorVal, max_calif)
+        )
+            
+        res= pd.DataFrame(resultado_clientes.all())
+        pt = Table(f, dataframe=res,
                                 showtoolbar=True, showstatusbar=True)
         pt.show()
+
+
     def query3(self): 
         newWindow = Toplevel(self.root)
         Frame.__init__(self)
@@ -316,6 +559,7 @@ class Admin_options(Frame):
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
+
         df = dfsuper.copy()
         self.table = pt = Table(f, dataframe=df,
                                 showtoolbar=True, showstatusbar=True)
@@ -323,6 +567,8 @@ class Admin_options(Frame):
 
 
     def login_window(self): 
+        global supertemporalUser
+        supertemporalUser =None
         self.root.switch_frame(Login_window)
 
 class SampleApp(Tk):
