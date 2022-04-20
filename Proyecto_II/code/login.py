@@ -1,8 +1,11 @@
-from tkinter import*
+from tkinter import* #pip install tk 
 from tkinter import ttk
 from PIL import Image, ImageTk  #pip install pillow
 from tkinter import messagebox
-import mysql.connector
+import pandas as pd 
+from pandastable import Table, TableModel 
+dfsuper = pd.read_csv('Proyecto_II/data/DatosBBDDE_test.csv')
+universal_categorias = ['Fatansia', 'Ciencia Ficcion', 'Horror', 'AutoAyuda', 'Random']
 
 class Login_window(Frame):
     def __init__(self, root):
@@ -10,7 +13,7 @@ class Login_window(Frame):
         self.root.title("Login")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="./img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -18,7 +21,7 @@ class Login_window(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=400)
 
-        img1 = Image.open("./img/img_logo.png")
+        img1 = Image.open("Proyecto_II/img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg1=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -35,7 +38,7 @@ class Login_window(Frame):
         self.txtuser.place(x=40, y=180, width=240)
 
         #Icon Image
-        img2 = Image.open("./img/img_user.png")
+        img2 = Image.open("Proyecto_II/img/img_user.png")
         img2 = img2.resize((25,25), Image.ANTIALIAS)
         self.photoImage2= ImageTk.PhotoImage(img2)
         lblimg1=Label(image=self.photoImage2, bg="black", borderwidth=0)
@@ -70,7 +73,7 @@ class Register(Frame):
         self.root.title("Register")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="./img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -78,7 +81,7 @@ class Register(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=600)
 
-        img1 = Image.open("./img/img_logo.png")
+        img1 = Image.open("Proyecto_II/img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -113,7 +116,7 @@ class Register(Frame):
         self.txtmembership.place(x=40, y=370, width=240)
 
         #Icon Image
-        img2 = Image.open("./img/img_user.png")
+        img2 = Image.open("Proyecto_II/img/img_user.png")
         img2 = img2.resize((25,25), Image.ANTIALIAS)
         self.photoImage2= ImageTk.PhotoImage(img2)
         lblimg1=Label(image=self.photoImage2, bg="black", borderwidth=0)
@@ -148,7 +151,7 @@ class Updating_books(Frame):
         self.root.title("Booksr")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="./img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -156,7 +159,7 @@ class Updating_books(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=610, y=170, width= 340, height=600)
 
-        img1 = Image.open("./img/img_logo.png")
+        img1 = Image.open("Proyecto_II/img/img_logo.png")
         img1 = img1.resize((100,100), Image.ANTIALIAS)
         self.photoImage1= ImageTk.PhotoImage(img1)
         lblimg=Label(image=self.photoImage1, bg="black", borderwidth=0)
@@ -181,13 +184,13 @@ class Updating_books(Frame):
         rating=Label(frame, text="Rating", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
         rating.place(x=70, y=275)
 
-        self.txtrating = ttk.Combobox(frame, state="readonly",values=[1,2,3,4,5])
+        self.txtrating = ttk.Combobox(frame, state="readonly",values=[1,2,3,4,5,6,7,8,9,10])
         self.txtrating.place(x=40, y=300, width=240)
 
         category=Label(frame, text="Categoría", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
         category.place(x=70, y=330)
 
-        self.txtcategory = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.txtcategory = ttk.Combobox(frame, state="readonly", values=universal_categorias)
         self.txtcategory.place(x=40, y=355, width=240)
 
 
@@ -219,13 +222,13 @@ class Admin_options(Frame):
         self.root.title("Booksr")
         self.root.geometry("1550x800+0+0")
         
-        self.bg = ImageTk.PhotoImage(file="./img/background.jpg")
+        self.bg = ImageTk.PhotoImage(file="Proyecto_II/img/background.jpg")
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
         Frame.__init__(self, root)
         frame = Frame(self.root, bg="black")
-        frame.place(x=100, y=50, width= 1300, height=700)
+        frame.place(x=300, y=200, width= 900, height=400)
 
         get_str = Label(frame, text="Administrador Panel", font =("calibri", 20, "bold"), fg="lightblue", bg="black")
         get_str.place(x=30, y=50)
@@ -244,10 +247,10 @@ class Admin_options(Frame):
         self.bookname.place(x=400, y=140, width=240)
 
         bookspercategory=Label(frame, text="Libros destcadas de la categoría:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
-        bookspercategory.place(x=70, y=400)
+        bookspercategory.place(x=70, y=180)
 
         self.categoryname = ttk.Entry(frame, font =("calibri", 15, "bold"))
-        self.categoryname.place(x=400, y=400, width=240)
+        self.categoryname.place(x=400, y=180, width=240)
 
         #Login Button
         q1=Button(frame,command=self.query1, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
@@ -257,17 +260,45 @@ class Admin_options(Frame):
         q2.place(x=650, y=140, width=120, height=30)
 
         q2=Button(frame,command=self.query3, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
-        q2.place(x=650, y=400, width=120, height=30)
+        q2.place(x=650, y=180, width=120, height=30)
 
         exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightblue")
-        exitbtn.place(x=50, y=650, width=120, height=30)
+        exitbtn.place(x=50, y=350, width=120, height=30)
     
     def query1(self):
-        pass
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        df = dfsuper.copy()
+        self.table = pt = Table(f, dataframe=df,
+                                showtoolbar=True, showstatusbar=True)
+        pt.show()
+
     def query2(self): 
-        pass
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        df = dfsuper.copy()
+        self.table = pt = Table(f, dataframe=df,
+                                showtoolbar=True, showstatusbar=True)
+        pt.show()
     def query3(self): 
-        pass
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        df = dfsuper.copy()
+        self.table = pt = Table(f, dataframe=df,
+                                showtoolbar=True, showstatusbar=True)
+        pt.show()
 
 
     def login_window(self): 
