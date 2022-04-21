@@ -8,12 +8,12 @@ Recursos:
  - https://www.datastax.com/blog/most-important-thing-know-cassandra-data-modeling-primary-key
 
 Bibliotecas:
-%pip install cassandra-driver
-%pip install tk
-%pip install pillow
-%pip install pandastable
-%pip install tqdm
-%pip install pandas
+- %pip install cassandra-driver
+- %pip install tk
+- %pip install pillow
+- %pip install pandastable
+- %pip install tqdm
+- %pip install pandas
 
 CARACTERÍSTICAS DEL PROGRAMA:
 - Los usuarios ingresan con nombre de usuario
