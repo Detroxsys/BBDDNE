@@ -175,7 +175,7 @@ class Register(Frame):
                 WHERE id_cliente = %s
                 LIMIT 1
                 """,
-                (usernameVal)
+                [usernameVal]
             )
             if existe_usuario:
                 messagebox.showerror("Error", "El usuario ya existe, favor de hacer login")
@@ -285,38 +285,37 @@ class Updating_books(Frame):
 
     def ranking(self): 
         global supertemporalUser
-        booknameVal= self.txtbook.get() 
-        authorVal= self.txtauthor.get() 
-        rateVal= int(self.txtrating.get())
-        categoryVal = self.txtcategory.get()
-        if booknameVal=="" or authorVal=="" or rateVal=="" or categoryVal=="":
+        id_cliente = supertemporalUser
+        titulo_libro= self.txtbook.get() 
+        autor_libro= self.txtauthor.get() 
+        calificacion= int(self.txtrating.get())
+        categoria = self.txtcategory.get()
+        if titulo_libro=="" or autor_libro=="" or calificacion=="" or categoria=="":
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
         else:
             if supertemporalUser:
-                existe_calif= session.execute(
+                existe_calif = session.execute(
                     """
                     SELECT categoria, calificacion FROM libros_por_cliente
                     WHERE id_cliente=%s AND titulo_libro=%s  AND autor_libro=%s
                     LIMIT 1
-                    """,
-                    [supertemporalUser, booknameVal, authorVal]
-                )
-                
+                    """, [id_cliente, titulo_libro, autor_libro])
                 info_previa = existe_calif.one()
-                if info_previa:
+
+                if existe_calif:
+                    # pedir a usuario confirma que desea cambiar la calificacion
                     confirmacion_del_usuario = messagebox.askyesno(title='Confirmation',
-                    message='La calificación ya existe ¿desea actualizar?')
-                    # pedir a usuario confirma que desea cambiar la calificación
+                    message='La calificación ya existe ¿desea actualizar?')  #respuesta del usuario
                     if not confirmacion_del_usuario:
                         self.txtbook.delete(0, END)
                         self.txtauthor.delete(0,END)
                         self.txtrating.set('')
-                        self.txtcategory.set('')
+                        self.txtcategory.set('')                        
                         return
 
                     info_previa = existe_calif.one()
-                    
-                    #Borrar la calificación anterior
+
+                    #Borrar la calificacion anterior
                     session.execute(
                         """
                         DELETE FROM clientes_por_libro
@@ -325,8 +324,7 @@ class Updating_books(Frame):
                         AND calificacion=%s
                         AND id_cliente=%s
                         """,
-                        (booknameVal, authorVal, info_previa.calificacion, supertemporalUser)
-                    )
+                        (titulo_libro, autor_libro, info_previa.calificacion, id_cliente))
                     session.execute(
                         """
                         DELETE FROM categorias_por_cliente
@@ -335,36 +333,28 @@ class Updating_books(Frame):
                         AND titulo_libro=%s
                         AND autor_libro=%s
                         AND calificacion=%s
-                        """,
-                        (supertemporalUser, info_previa.categoria, booknameVal, authorVal, info_previa.calificacion)
-                    )
-                    
+                        """, (id_cliente, info_previa.categoria, titulo_libro, autor_libro,
+                            info_previa.calificacion))
+
                 #Agregar la nueva calificación
                 session.execute(
                     """
                     INSERT INTO libros_por_cliente 
                     (id_cliente, titulo_libro, autor_libro, categoria, calificacion)
                     VALUES (%s, %s, %s, %s, %s)
-                    """,
-                    (supertemporalUser, booknameVal, authorVal, categoryVal, rateVal)
-                )
+                    """, (id_cliente, titulo_libro, autor_libro, categoria, calificacion))
                 session.execute(
                     """
                     INSERT INTO clientes_por_libro 
                     (titulo_libro, autor_libro, id_cliente, calificacion, categoria)
                     VALUES (%s, %s, %s, %s, %s)
-                    """,
-                    (booknameVal, authorVal, supertemporalUser, rateVal, categoryVal)
-                )
+                    """, (titulo_libro, autor_libro, id_cliente, calificacion, categoria))
                 session.execute(
                     """
                     INSERT INTO categorias_por_cliente 
                     (id_cliente, titulo_libro, autor_libro, categoria, calificacion)
                     VALUES (%s, %s, %s, %s, %s)
-                    """,
-                    (supertemporalUser, booknameVal, authorVal, categoryVal, rateVal)
-                )
-                
+                    """, (id_cliente, titulo_libro, autor_libro, categoria, calificacion))
 
                 #Actualizar calificaciones promedio
                 calificacion_promedio = session.execute(
@@ -372,47 +362,68 @@ class Updating_books(Frame):
                     SELECT AVG(calificacion) FROM clientes_por_libro
                     WHERE titulo_libro=%s
                     AND autor_libro=%s
-                    """,
-                    (booknameVal, authorVal)
-                )
+                    """, (titulo_libro, autor_libro))
                 calificacion_promedio = round(calificacion_promedio.one()[0], 2)
 
                 categorias_del_libro = session.execute(
-                        """
-                        SELECT categoria FROM clientes_por_libro
-                        WHERE titulo_libro =%s
-                        AND autor_libro = %s
-                        """,
-                        (booknameVal, authorVal)
-                )
-                
+                    """
+                    SELECT categoria FROM clientes_por_libro
+                    WHERE titulo_libro =%s
+                    AND autor_libro = %s
+                    """, (titulo_libro, autor_libro))
+
+                alguna_categoria = categorias_del_libro.one().categoria
+
+                promedio_anterior = session.execute(
+                    """
+                    SELECT calificacion_promedio FROM libros_por_categoria
+                    WHERE categoria =%s
+                    AND titulo_libro =%s
+                    AND autor_libro = %s
+                    """, (alguna_categoria, titulo_libro, autor_libro))
+                if promedio_anterior:
+                    promedio_anterior = promedio_anterior.one().calificacion_promedio
+
                 #En caso de que sea la única review que asigna esa categoría al libro y se cambie la categoría, necesitamos
                 #eliminar la fila de la tabla libros_por_categoría
                 if info_previa is not None:
-                    if  info_previa.categoria != categoryVal:
+                    if info_previa.categoria != categoria:
                         unica_calificacion = True
-                
+
                         for row in categorias_del_libro:
-                            if row.categoria == info_previa.categoria: #entonces hay otras reviews que categorizan igual al libro
+                            if row.categoria == info_previa.categoria:  #entonces hay otras reviews que categorizan igual al libro
                                 unica_calificacion = False
-                            session.execute(
-                                """
-                                DELETE FROM libros_por_categoria
-                                WHERE categoria=%s
-                                AND titulo_libro=%s
-                                AND autor_libro= %s
-                                """,
-                                (row.categoria, booknameVal, authorVal)
-                            )
+
+                            #Actualizar libros_por_categoria
                             session.execute(
                                 """
                                 INSERT INTO libros_por_categoria
                                 (categoria, titulo_libro, autor_libro, calificacion_promedio)
                                 VALUES (%s, %s, %s, %s)
-                                """,
-                                (row.categoria, booknameVal, authorVal, calificacion_promedio)
-                            )
-                        
+                                """, (row.categoria, titulo_libro, autor_libro,
+                                    calificacion_promedio))
+
+                            #Actualizar calificaciones_por_categoria
+                            ## Borrar promedio anterior
+                            if promedio_anterior:
+                                session.execute(
+                                    """
+                                    DELETE FROM calificaciones_por_categoria
+                                    WHERE categoria=%s
+                                    AND calificacion_promedio=%s
+                                    AND titulo_libro=%s
+                                    AND autor_libro= %s
+                                    """, (row.categoria, promedio_anterior, titulo_libro,
+                                        autor_libro))
+                            ## Insertar promedio nuevo
+                            session.execute(
+                                """
+                                INSERT INTO calificaciones_por_categoria
+                                (categoria, calificacion_promedio, titulo_libro, autor_libro)
+                                VALUES (%s, %s, %s, %s)
+                                """, (row.categoria, calificacion_promedio, titulo_libro,
+                                    autor_libro))
+
                         if unica_calificacion:
                             session.execute(
                                 """
@@ -420,29 +431,48 @@ class Updating_books(Frame):
                                 WHERE categoria=%s
                                 AND titulo_libro=%s
                                 AND autor_libro=%s
-                                """,
-                                (info_previa.categoria, booknameVal, authorVal)
-                            )
-                
+                                """, (info_previa.categoria, titulo_libro, autor_libro))
+                            session.execute(
+                                """
+                                DELETE FROM calificaciones_por_categoria
+                                WHERE categoria=%s
+                                AND calificacion_promedio=%s
+                                AND titulo_libro=%s
+                                AND autor_libro=%s
+                                """, (info_previa.categoria, promedio_anterior,
+                                    titulo_libro, autor_libro))
+
                 else:
                     for row in categorias_del_libro:
-                        session.execute(
-                            """
-                            DELETE FROM libros_por_categoria
-                            WHERE categoria=%s
-                            AND titulo_libro=%s
-                            AND autor_libro= %s
-                            """,
-                            (row.categoria, booknameVal, authorVal)
-                        )
+                        #Actualizar libros_por_categoria
                         session.execute(
                             """
                             INSERT INTO libros_por_categoria
                             (categoria, titulo_libro, autor_libro, calificacion_promedio)
                             VALUES (%s, %s, %s, %s)
-                            """,
-                            (row.categoria, booknameVal, authorVal, calificacion_promedio)
-                        )
+                            """, (row.categoria, titulo_libro, autor_libro,
+                                calificacion_promedio))
+
+                        #Actualizar calificaciones_por_categoria
+                        ## Borrar promedio anterior
+                        if promedio_anterior:
+                            session.execute(
+                                """
+                                DELETE FROM calificaciones_por_categoria
+                                WHERE categoria=%s
+                                AND calificacion_promedio=%s
+                                AND titulo_libro=%s
+                                AND autor_libro= %s
+                                """, (row.categoria, promedio_anterior, titulo_libro,
+                                    autor_libro))
+                        #Insertar promedio nuevo
+                        session.execute(
+                            """
+                            INSERT INTO calificaciones_por_categoria
+                            (categoria, calificacion_promedio, titulo_libro, autor_libro)
+                            VALUES (%s, %s, %s, %s)
+                            """, (row.categoria, calificacion_promedio, titulo_libro,
+                                autor_libro))
                 self.txtbook.delete(0, END)
                 self.txtauthor.delete(0,END)
                 self.txtrating.set('')
@@ -487,11 +517,17 @@ class Admin_options(Frame):
         self.author = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.author.place(x=400, y=180, width=240)
 
-        bookspercategory=Label(frame, text="Libros destcadas de la categoría:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        bookspercategory=Label(frame, text="Libros destacados de la categoría:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
         bookspercategory.place(x=70, y=220)
 
-        self.categoryname = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.categoryname = ttk.Combobox(frame, state="readonly", values=universal_categorias)
         self.categoryname.place(x=400, y=220, width=240)
+
+        numberbooks=Label(frame, text="Se desea obtener los mejores:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        numberbooks.place(x=70, y=260)
+
+        self.numberbooks = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.numberbooks.place(x=400, y=260, width=240)
 
         #Login Button
         q1=Button(frame,command=self.query1, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
@@ -507,13 +543,14 @@ class Admin_options(Frame):
         exitbtn.place(x=50, y=350, width=120, height=30)
     
     def query1(self):
-        usernameVal = self.username.get()
         newWindow = Toplevel(self.root)
         Frame.__init__(self)
         newWindow.geometry('600x400+200+100')
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
+
+        usernameVal = self.username.get()
 
         resultado = session.execute(
             """
@@ -540,8 +577,12 @@ class Admin_options(Frame):
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
+
+
         booknameVal= self.bookname.get()
         authorVal  = self.author.get()
+
+
         resultado_max_calif = session.execute(
             """
             SELECT MAX(calificacion) FROM clientes_por_libro
@@ -582,8 +623,20 @@ class Admin_options(Frame):
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
 
-        df = dfsuper.copy()
-        self.table = pt = Table(f, dataframe=df,
+        categoria= self.categoryname.get()
+        n        = int(self.numberbooks.get())
+        resultado = session.execute(
+            """
+            SELECT titulo_libro, autor_libro, calificacion_promedio FROM calificaciones_por_categoria
+            WHERE categoria=%s
+            ORDER BY calificacion_promedio DESC
+            LIMIT %s;
+            """, 
+            (categoria, n)
+        )
+
+        res=pd.DataFrame(resultado.all())
+        pt = Table(f, dataframe=res,
                                 showtoolbar=True, showstatusbar=True)
         pt.show()
 

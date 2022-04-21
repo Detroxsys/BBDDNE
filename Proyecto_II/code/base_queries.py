@@ -109,7 +109,9 @@ def Q1_alta_usuario(id_cliente: str, nombre_cliente: str, pais: str,
         SELECT * FROM libros_por_cliente
         WHERE id_cliente = %s
         LIMIT 1
-        """, (id_cliente))
+        """, 
+        [id_cliente]
+    )
 
     if existe_usuario:
         return None
