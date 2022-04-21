@@ -54,7 +54,7 @@ ferA99,One Shot,Lee Child,Suspenso,2
 lucluc,Othello,William Shakespeare,Teatro,10
 kikin01,Pedro Paramo,Juan Rulfo,Novela,9
 pabs,Pride and Prejudice,Jane Austen,Novela,4
-Yeu,Quantum Mechanics: Non-Relativistic Theory,,Académico,10
+Yeu,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Académico,10
 MrBruce,Rayuela,Julio Cortazar,Novela,3
 Dafelicioso,Ser y tiempo,Martin Heidegger,Ensayo,8
 OctaH,Siddharta,Hermann Hesse,Novela ,1
@@ -134,7 +134,7 @@ kikin01,One Shot,Lee Child,Académico,6
 Dafelicioso,Othello,William Shakespeare,Fantasia Oscura,10
 oguh,Pedro Paramo,Juan Rulfo,Novela,8
 laz38,Pride and Prejudice,Jane Austen,Suspenso,5
-LaCams12,Quantum Mechanics: Non-Relativistic Theory,,Teatro,8
+LaCams12,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Teatro,8
 ferS00,Rayuela,Julio Cortazar,Novela,1
 Alex_27,Ser y tiempo,Martin Heidegger,Novela,1
 laz38,Siddharta,Hermann Hesse,Académico,10
@@ -213,7 +213,7 @@ oguh,One Shot,Lee Child,Misterio,10
 edgy,Othello,William Shakespeare,Novela,10
 Dafelicioso,Pedro Paramo,Juan Rulfo,Novela Filosófica,10
 ferS00,Pride and Prejudice,Jane Austen,Realismo mágico,10
-MarceCL,Quantum Mechanics: Non-Relativistic Theory,,Académico,1
+MarceCL,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Académico,1
 guillexus,Ser y tiempo,Martin Heidegger,Fantasia Oscura,10
 ferS00,Siddharta,Hermann Hesse,Novela,6
 Arielin98,Solo quedó nuestra historia,Adam Silvera,Suspenso,10
@@ -287,7 +287,7 @@ lucluc,One Shot,Lee Child,Teatro,10
 OctaH,Othello,William Shakespeare,Tragedia,4
 ferA99,Pedro Paramo,Juan Rulfo,Novela,9
 Alex_27,Pride and Prejudice,Jane Austen,Ciencia Ficcion,8
-edu18,Quantum Mechanics: Non-Relativistic Theory,,Novela,8
+edu18,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Novela,8
 MarceCL,Rayuela,Julio Cortazar,Novela,10
 MarceCL,Ser y tiempo,Martin Heidegger,Ciencia Ficcion,8
 MrBruce,Siddharta,Hermann Hesse,Cuento,9
@@ -348,7 +348,7 @@ Yeu,One Shot,Lee Child,Ciencia Ficcion,9
 LaCams12,Othello,William Shakespeare,Cuento,5
 MrBruce,Pedro Paramo,Juan Rulfo,Thriller histórico,8
 oguh,Pride and Prejudice,Jane Austen,Novela,10
-kikin01,Quantum Mechanics: Non-Relativistic Theory,,Novela,10
+kikin01,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Novela,10
 lucluc,Rayuela,Julio Cortazar,Novela,10
 edu18,Ser y tiempo,Martin Heidegger,Novela,8
 edu18,Siddharta,Hermann Hesse,Cuento,8
@@ -475,7 +475,7 @@ kikin01,Modern Quantum Mechanics,Sakurai,Ensayo,10
 LaCams12,Valis,K. Dick,Novela ,10
 laz38,El señor de las moscas,Willian Golding,Académico,4
 oguh,The Pillars of the Earth,Ken Follett,Novela,10
-Arielin98,Quantum Mechanics: Non-Relativistic Theory,,Realismo mágico,10
+Arielin98,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Realismo mágico,10
 Dafelicioso,La metamorfosis,Franz Kakfa,Novela,8
 Arielin98,La casa de Bernarda Alba,Garcia Lorca,Académico,9
 ferA99,The Second Coming of Gluttony,Ro Yu-jin,Cuento,10
@@ -517,7 +517,7 @@ edu18,1984,George Orwell,Novela,8
 Alex_27,Enders Game,Orson,Novela,9
 edgy,Ulises,James Joyce,Novela,2
 oguh,La maquina del tiempo,H. G. Wells,Novela,10
-lucluc,Quantum Mechanics: Non-Relativistic Theory,,Cuento,8
+lucluc,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Cuento,8
 pabs,Anna Karenina,Leon Tolstoi,Thriller,2
 oguh,"¡Adiós, Cordera!",Leooldo Alas,Novela,3
 edu18,La maquina del tiempo,H. G. Wells,Cuento,10
@@ -532,7 +532,7 @@ MrBruce,La metamorfosis,Franz Kakfa,Autoayuda,1
 oguh,Solo quedó nuestra historia,Adam Silvera,Fantasia,3
 ferS00,Los Hermanos Karamazov,Dostoyevski,Xianxia,10
 guillexus,One Shot,Lee Child,Novela,10
-Dafelicioso,Quantum Mechanics: Non-Relativistic Theory,,Teatro,10
+Dafelicioso,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Teatro,10
 kikin01,La casa de Bernarda Alba,Garcia Lorca,Tragedia,9
 kikin01,Pride and Prejudice,Jane Austen,Novela,7
 oguh,Los Recuerdos del Porvenir,Elena Garro,Ciencia Ficcion,10
@@ -675,7 +675,7 @@ edgy,Los Recuerdos del Porvenir,Elena Garro,Ciencia Ficcion,4
 Arielin98,Modern Quantum Mechanics,Sakurai,Ciencia Ficcion,10
 edu18,On the road,Jack Kerouac,Novela,9
 Yeu,Pride and Prejudice,Jane Austen,Novela,5
-ferA99,Quantum Mechanics: Non-Relativistic Theory,,Novela,7
+ferA99,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Novela,7
 pabs,Ser y tiempo,Martin Heidegger,Ciencia Ficcion,3
 Yeu,Siddharta,Hermann Hesse,Cuento,10
 MrBruce,Solo quedó nuestra historia,Adam Silvera,Thriller histórico,10
@@ -723,7 +723,7 @@ Alex_27,Neverwhere,Neil Gaiman,Novela,1
 LaCams12,On the road,Jack Kerouac,Ensayo,7
 OctaH,Pedro Paramo,Juan Rulfo,Novela ,9
 LaCams12,Pride and Prejudice,Jane Austen,Académico,7
-oguh,Quantum Mechanics: Non-Relativistic Theory,,Novela,10
+oguh,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Novela,10
 pabs,Rayuela,Julio Cortazar,Realismo mágico,5
 lucluc,Ser y tiempo,Martin Heidegger,Novela,3
 laz38,Solo quedó nuestra historia,Adam Silvera,Académico,5
@@ -755,7 +755,7 @@ guillexus,Los Hermanos Karamazov,Dostoyevski,Novela,8
 lucluc,Neverwhere,Neil Gaiman,Novela,10
 Alex_27,On the road,Jack Kerouac,Novela,10
 Dafelicioso,Pride and Prejudice,Jane Austen,Ciencia Ficcion,10
-laz38,Quantum Mechanics: Non-Relativistic Theory,,Cuento,5
+laz38,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Cuento,5
 ferA99,Rayuela,Julio Cortazar,Thriller histórico,3
 kikin01,Spivak-Calulus,Spivak,Novela,4
 Alex_27,Testimonios sobre Mariana,Elena Garro,Novela,8
@@ -967,7 +967,7 @@ lucluc,Modern Quantum Mechanics,Sakurai,Suspenso,8
 ferS00,One Shot,Lee Child,Teatro,4
 edu18,Othello,William Shakespeare,Novela,8
 guillexus,Pedro Paramo,Juan Rulfo,Novela,9
-pabs,Quantum Mechanics: Non-Relativistic Theory,,Académico,10
+pabs,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Académico,10
 OctaH,Rayuela,Julio Cortazar,Novela,10
 lucluc,Temporada de Huracanes,Fernanda Melchor,Ensayo,10
 OctaH,The Lord of the Rings The Two Towers,Tolkien,Novela ,1
@@ -1049,7 +1049,7 @@ ferA99,"¡Adiós, Cordera!",Leooldo Alas,Novela,3
 edu18,Historia de Dos Ciudades,Charles Dickens,Fantasia,1
 Yeu,Harry Potter,J. K. Rowling,Fantasia,2
 MarceCL,One Shot,Lee Child,Fantasia,8
-edgy,Quantum Mechanics: Non-Relativistic Theory,,Cuento,10
+edgy,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Cuento,10
 oguh,Historia de Dos Ciudades,Charles Dickens,Novela,8
 kikin01,Rayuela,Julio Cortazar,Novela ,6
 pabs,The tell-tale heart,Edgar Allan Poe,Wuxia,10
@@ -1094,7 +1094,7 @@ pabs,La Historia del Rey Transparente,Rosa Montero,Ciencia Ficcion,10
 lucluc,La insoportable levedad del ser,Milan Kundera,Cuento,1
 ferS00,Lazarillo de Tormes,Anonimo,Thriller histórico,10
 pabs,Neverwhere,Neil Gaiman,Novela,9
-Alex_27,Quantum Mechanics: Non-Relativistic Theory,,Novela,1
+Alex_27,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Novela,1
 ferA99,Spivak-Calulus,Spivak,Novela,10
 Alex_27,Temporada de Huracanes,Fernanda Melchor,Novela,4
 MrBruce,The fall of the house of usher,Edgar Allan Poe,Cuento,10
@@ -1269,7 +1269,7 @@ edgy,La Sombra del Viento,Carlos Ruiz Zafon,Novela,10
 Yeu,Rayuela,Julio Cortazar,Novela,10
 Alex_27,Valis,K. Dick,Académico,2
 kikin01,El señor de las moscas,Willian Golding,Novela,10
-OctaH,Quantum Mechanics: Non-Relativistic Theory,,Ensayo,7
+OctaH,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Ensayo,7
 Arielin98,Pedro Paramo,Juan Rulfo,Novela ,10
 edgy,Lazarillo de Tormes,Anonimo,Académico,10
 oguh,Drácula,Bram Stoker,Novela,10
@@ -1284,7 +1284,7 @@ OctaH,Enders Game,Orson,Fantasia,7
 ferA99,Física de lo imposible,Michio Kaku,Fantasia,7
 pabs,Spivak-Calulus,Spivak,Cuento,1
 ferS00,Historia de Dos Ciudades,Charles Dickens,Novela,9
-MrBruce,Quantum Mechanics: Non-Relativistic Theory,,Novela ,1
+MrBruce,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Novela ,1
 Alex_27,The Physician,Noah Gordon,Wuxia,10
 ferS00,La guerra de los mundos,H. G. Wells,Ciencia Ficcion,8
 guillexus,The catcher in the rye,Salinger,Autobiografía,4
@@ -1362,7 +1362,7 @@ MrBruce,La Sombra del Viento,Carlos Ruiz Zafon,Académico,10
 laz38,Othello,William Shakespeare,Cuento,7
 ferS00,Pedro Paramo,Juan Rulfo,Ficción Distópica,10
 ferA99,Pride and Prejudice,Jane Austen,Novela,10
-ferS00,Quantum Mechanics: Non-Relativistic Theory,,Fantasia,10
+ferS00,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Fantasia,10
 oguh,Ser y tiempo,Martin Heidegger,Fantasia,5
 pabs,Testimonios sobre Mariana,Elena Garro,Fantasia,9
 Alex_27,El Tapiz Amarillo,Charlotte Perkins Gilman,Cuento,5
@@ -1449,7 +1449,7 @@ laz38,Un mundo feliz,Aldous Huxley,Fantasia,10
 pabs,1Q84,Murakami,Fantasia,10
 kikin01,El Tapiz Amarillo,Charlotte Perkins Gilman,Fantasia,7
 ferA99,Farenheit 451,Ray Bradbury,Cuento,4
-guillexus,Quantum Mechanics: Non-Relativistic Theory,,Novela,10
+guillexus,Quantum Mechanics: Non-Relativistic Theory,Sakurai,Novela,10
 lucluc,Travesuras de la niña mala,Mario Vargas,Novela ,7
 MrBruce,La maquina del tiempo,H. G. Wells,Wuxia,10
 oguh,La semana de colores,Elena Garro,Ciencia Ficcion,4
