@@ -95,7 +95,7 @@ def Q0_check_usuario(id_cliente: str):
         SELECT * FROM libros_por_cliente
         WHERE id_cliente = %s
         LIMIT 1
-        """, (id_cliente))
+        """, [id_cliente])
     if existe_usuario:
         return True
     else:
@@ -313,7 +313,7 @@ def Q3_categoría_preferida_por_cliente(id_cliente: str):
         SELECT categoria, AVG(calificacion) FROM categorias_por_cliente
         WHERE id_cliente=%s
         GROUP BY categoria
-        """, (id_cliente))
+        """, [id_cliente])
 
     resultado = pd.DataFrame(resultado.all(),
                              columns=['cateogoria', 'avg_calificacion'])
@@ -369,7 +369,7 @@ def Q6_user_libros(id_cliente: str):
         """
         SELECT titulo_libro, autor_libro, categoria, calificacion FROM libros_por_cliente
         WHERE id_cliente=%s
-        """, (id_cliente))
+        """, [id_cliente])
     return pd.DataFrame(resultado.all())
 
 

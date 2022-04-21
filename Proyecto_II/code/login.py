@@ -8,7 +8,6 @@ import numpy as np
 from cassandra.cluster import Cluster
 from pandastable import Table, TableModel 
 
-dfsuper = pd.read_csv('DatosBBDDE_test.csv')
 universal_categorias = ['Académico', 'Autoayuda', 'Autobiografía', 'Ciencia Ficción','Cuento', 'Divulgación',
                         'Drama', 'Ensayo', 'Fantasia', 'Fantasia Oscura', 'Ficcion Distópica', 'Ficción Doméstica',
                         'Misterio', 'Novela', 'Novela Filosófica', 'Novela Realista', 'Realismo Mágico', 'Suspenso',
@@ -543,6 +542,23 @@ class Admin_options(Frame):
         exitbtn.place(x=50, y=350, width=120, height=30)
     
     def query1(self):
+        usernameVal = self.username.get()
+        if usernameVal=="": 
+            messagebox.showerror("Error", "Ingresa un usuario")
+            return
+
+        existe_usuario = session.execute(
+            """
+            SELECT * FROM libros_por_cliente
+            WHERE id_cliente = %s
+            LIMIT 1
+            """,
+            [usernameVal]
+        )
+        if not existe_usuario:
+            messagebox.showerror("Error", "Usuario no existe, no hay datos")
+            return
+
         newWindow = Toplevel(self.root)
         Frame.__init__(self)
         newWindow.geometry('600x400+200+100')
@@ -550,7 +566,7 @@ class Admin_options(Frame):
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
 
-        usernameVal = self.username.get()
+        
 
         resultado = session.execute(
             """
@@ -571,33 +587,34 @@ class Admin_options(Frame):
         pt.show()
 
     def query2(self): 
+        booknameVal= self.bookname.get()
+        authorVal  = self.author.get()
+
+        resultado_max_calif = session.execute(
+                """
+                SELECT MAX(calificacion) FROM clientes_por_libro
+                WHERE titulo_libro=%s
+                AND autor_libro=%s
+                LIMIT 1
+                """,
+                (booknameVal, authorVal)
+            ) 
+
+        max_calif = resultado_max_calif.one()[0]
+
+        if max_calif is None: 
+            messagebox.showinfo('No data', 'Ese libro no esta en la base')
+            return 
+
         newWindow = Toplevel(self.root)
         Frame.__init__(self)
         newWindow.geometry('600x400+200+100')
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
+    
 
-
-        booknameVal= self.bookname.get()
-        authorVal  = self.author.get()
-
-
-        resultado_max_calif = session.execute(
-            """
-            SELECT MAX(calificacion) FROM clientes_por_libro
-            WHERE titulo_libro=%s
-            AND autor_libro=%s
-            LIMIT 1
-            """,
-            (booknameVal, authorVal)
-        )
-
-        if resultado_max_calif is None:
-            messagebox.showerror('Error', 'No hay ratings para este libro')
-            return
-
-        max_calif = resultado_max_calif.one()[0]
+        
 
         resultado_clientes = session.execute(
             """
@@ -616,15 +633,15 @@ class Admin_options(Frame):
 
 
     def query3(self): 
-        newWindow = Toplevel(self.root)
-        Frame.__init__(self)
-        newWindow.geometry('600x400+200+100')
-        newWindow.title('Tabla')
-        f = Frame(newWindow)
-        f.pack(fill=BOTH,expand=1)
-
+        if  self.numberbooks.get()=="" or self.categoryname.get()=="":
+            messagebox.showerror('Error', 'Debes ingresar un número y una categoría')
+            return
+        if  not str(self.numberbooks.get()).isnumeric(): 
+            messagebox.showerror('Error', 'Debes ingresar un número')
+            return
         categoria= self.categoryname.get()
         n        = int(self.numberbooks.get())
+
         resultado = session.execute(
             """
             SELECT titulo_libro, autor_libro, calificacion_promedio FROM calificaciones_por_categoria
@@ -634,6 +651,14 @@ class Admin_options(Frame):
             """, 
             (categoria, n)
         )
+
+
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
 
         res=pd.DataFrame(resultado.all())
         pt = Table(f, dataframe=res,
