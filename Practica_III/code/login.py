@@ -360,8 +360,8 @@ class Register_Trip(Frame):
     
         self.hour_sb = ttk.Spinbox(frame,from_=0,to=9, wrap=True, state="readonly",font=('Times', 20),justify=CENTER)
         self.min_sb = ttk.Spinbox(frame,from_=0,to=59, wrap=True, state="readonly", font=('Times', 20),justify=CENTER)
-        self.hour_sb.place(x=40,y= 250, width=30)
-        self.min_sb.place(x=100,y= 250, width=30)
+        self.hour_sb.place(x=40,y= 250, width=40)
+        self.min_sb.place(x=100,y= 250, width=40)
 
         msg = Label(frame, 
             text="Hours  Minutes",
