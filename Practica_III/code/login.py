@@ -7,6 +7,26 @@ import pandas as pd
 import numpy as np
 from cassandra.cluster import Cluster
 from pandastable import Table, TableModel 
+from bson.objectid import ObjectId
+import pymongo
+from pymongo import GEOSPHERE
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
+
+# es importante mapear al puerto usando -p 27017:27017 al construir el contenedor o en el docker-compose.yml
+conn_str = "mongodb://localhost:27017"
+client = pymongo.MongoClient(conn_str, server_api=ServerApi('1'), serverSelectionTimeoutMS=5000)
+db = client['BDBicis']
+#Alternativa:
+# client = MongoClient('localhost', 27017)
+
+# Probando conexión
+try:
+    print(client.server_info())
+except Exception:
+    print("Unable to connect to the server.")
+
+
 
 #Usuario logueado en cache
 supertemporalUser=None
@@ -66,8 +86,9 @@ class Login_window(Frame):
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
         else: 
             usernameVal = self.txtuser.get()
-            existe_usuario = True
-            if existe_usuario:
+            from base_queries import existe_usuario
+            existe_user = existe_usuario(usernameVal)
+            if existe_user:
                 global supertemporalUser 
                 supertemporalUser=usernameVal
                 messagebox.showinfo("Success", f"Bienvenido {supertemporalUser}")
@@ -147,18 +168,23 @@ class Register(Frame):
         usernameVal= self.txtuser.get() 
         firstplaceVal= self.txtfirstplace.get() 
         longitudeVal= self.txtlongitude.get()
-        latitudeVal      =  self.txtlatitude.get()
+        latitudeVal      = self.txtlatitude.get()
         if usernameVal=="" or longitudeVal=="" or latitudeVal=="" or firstplaceVal=="":
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
             return None
         else:
-            existe_usuario = False
-            if existe_usuario:
+            longitudeVal = float(longitudeVal)
+            latitudeVal = float(latitudeVal)
+            from base_queries import existe_usuario
+            existe_user = existe_usuario(usernameVal)
+            if existe_user:
                 messagebox.showerror("Error", "El usuario ya existe, favor de hacer login")
                 self.root.switch_frame(Login_window)
             else: 
                 global supertemporalUser
-                supertemporalUser="Capitan"
+                supertemporalUser=usernameVal
+                from base_queries import crear_usuario
+                crear_usuario(usernameVal, firstplaceVal, float(longitudeVal), float(latitudeVal))
                 messagebox.showinfo("Success", f"Registro Exitoso, bienvenido {supertemporalUser}")
                 self.root.switch_frame(User_options)
 
@@ -199,7 +225,24 @@ class User_options(Frame):
     def login_window(self): 
         self.root.switch_frame(Login_window)
     def my_places(self): 
-        messagebox.showinfo("Info", "Se pueden ver lugares")
+        global supertemporalUser
+        if supertemporalUser==None:
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+
+        from base_queries import lugares_guardados
+        resultado = lugares_guardados(supertemporalUser)
+        
+        res = pd.DataFrame(resultado, columns= ['Nombre Lugar', 'Coordenadas'])
+        pt = Table(f, dataframe=res,
+                                showtoolbar=True, showstatusbar=True)
+        pt.show()
 
     def my_trips(self): 
         messagebox.showinfo("Info", "Se pueden ver viajes")
@@ -265,8 +308,9 @@ class Register_Place(Frame):
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
             return None
         else:
+            longitudeVal = float(longitudeVal)
+            latitudeVal = float(latitudeVal)
             global supertemporalUser
-            supertemporalUser= "Capitan"
             if supertemporalUser: 
                 self.root.switch_frame(User_options)
             else: 
