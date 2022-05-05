@@ -26,7 +26,10 @@ try:
 except Exception:
     print("Unable to connect to the server.")
 
-
+# Carga de las estaciones
+estaciones = pd.read_csv('data/estaciones.csv')
+dict_id_estacion = dict(zip(estaciones.id, estaciones.name))
+dict_estacion_id = dict(zip(estaciones.name, estaciones.id))
 
 #Usuario logueado en cache
 supertemporalUser=None
@@ -245,7 +248,21 @@ class User_options(Frame):
         pt.show()
 
     def my_trips(self): 
-        messagebox.showinfo("Info", "Se pueden ver viajes")
+        global supertemporalUser
+        if supertemporalUser==None:
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+
+        from base_queries import historial_viajes
+        resultado = historial_viajes(supertemporalUser)
+        pt = Table(f, dataframe=resultado,showtoolbar=True, showstatusbar=True)
+        pt.show()
             
     def make_place(self): 
         self.root.switch_frame(Register_Place)
@@ -312,12 +329,21 @@ class Register_Place(Frame):
             latitudeVal = float(latitudeVal)
             global supertemporalUser
             if supertemporalUser: 
-                self.root.switch_frame(User_options)
+                from base_queries import nuevo_lugar
+                from base_queries import existe_lugar 
+                existplace = existe_lugar(supertemporalUser, firstplaceVal)
+                if existplace: 
+                    self.txtfirstplace.delete(0, END)
+                    self.txtlongitude.delete(0,END)  
+                    self.txtlatitude.delete(0,END) 
+                    messagebox.showerror("Error", "El lugar ya existe, cambie el nombre")
+                else: 
+                    nuevo_lugar(supertemporalUser, firstplaceVal, longitudeVal, latitudeVal)
+                    messagebox.showinfo("Info", "Lugar creado con exito")
+                    self.root.switch_frame(User_options)
             else: 
                 self.root.switch_frame(Login_window)
                 messagebox.showerror("Error", "No hay usuario registrado")
-
-
 class Register_Trip(Frame):
     def __init__(self, root):
         self.root=root
@@ -339,37 +365,36 @@ class Register_Trip(Frame):
         lugar=Label(frame, text="Lugar de origen", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
         lugar.place(x=40, y=70)
 
-        self.txtlugar = ttk.Combobox(frame, state="readonly",values=[1,2,3,4,5,6,7,8,9,10])
+        self.txtlugar = ttk.Combobox(frame, state="readonly",values=['Elegir estacion'])
         self.txtlugar.place(x=40, y=100, width=240)
-
-        est_origen=Label(frame, text="Estación de origen", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
-        est_origen.place(x=40, y=120)
-
-        self.txtest_origen = ttk.Combobox(frame, state="readonly",values=[1,2,3,4,5,6,7,8,9,10])
-        self.txtest_origen.place(x=40, y=150, width=240)
-
-        est_final=Label(frame, text="Estación final", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
-        est_final.place(x=40, y=170)
-
-        self.txtest_final = ttk.Combobox(frame, state="readonly",values=[1,2,3,4,5,6,7,8,9,10])
-        self.txtest_final.place(x=40, y=200, width=240)
+        self.txtlugar.bind('<Enter>', self.update_place)
+        self.txtlugar.bind('<<ComboboxSelected>>', self.update_estacion_origen)
 
         duracion=Label(frame, text="Duración:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
-        duracion.place(x=40, y=220)
-
+        duracion.place(x=40, y=120)
     
-        self.hour_sb = ttk.Spinbox(frame,from_=0,to=9, wrap=True, state="readonly",font=('Times', 20),justify=CENTER)
-        self.min_sb = ttk.Spinbox(frame,from_=0,to=59, wrap=True, state="readonly", font=('Times', 20),justify=CENTER)
-        self.hour_sb.place(x=40,y= 250, width=40)
-        self.min_sb.place(x=100,y= 250, width=40)
+        self.hour_sb = ttk.Spinbox(frame,from_=0,to=9,width=40, wrap=True, state="readonly",font=('Times', 20),justify=CENTER)
+        self.min_sb = ttk.Spinbox(frame,from_=0,to=59,width=40, wrap=True, state="readonly", font=('Times', 20),justify=CENTER)
+        self.hour_sb.place(x=40,y= 150, width=50, height=25)
+        self.min_sb.place(x=100,y= 150, width=50, height=25)
 
-        msg = Label(frame, 
-            text="Hours  Minutes",
-            font=("Times", 12),
-            fg="lightblue", 
-            bg = "black"
-            )
-        msg.place(x=40, y=290)
+        msg = Label(frame, text="Hours    Minutes",font=("Times", 12),fg="lightblue", bg = "black")
+        msg.place(x=40, y=170)
+
+
+        est_origen=Label(frame, text="Estación de origen", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        est_origen.place(x=40, y=190)
+
+        self.txtest_origen = ttk.Combobox(frame, state="readonly",values=[])
+        self.txtest_origen.place(x=40, y=220, width=240)
+        self.txtest_origen.bind('<<ComboboxSelected>>', self.update_estacion_final)        
+
+
+        est_final=Label(frame, text="Estación final", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        est_final.place(x=40, y=240)
+
+        self.txtest_final = ttk.Combobox(frame, state="readonly",values=[])
+        self.txtest_final.place(x=40, y=270, width=240)
 
         #Login Button
         registerbtn=Button(frame,command=self.register_new_trip, text="Registrar Viaje",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
@@ -378,14 +403,81 @@ class Register_Trip(Frame):
         exitbtn=Button(frame,command=self.user_control, text="Ir a Panel",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
         exitbtn.place(x=180, y=520, width=140, height=35)
 
+
+    def update_place(self, event):
+        if supertemporalUser: 
+            from base_queries import  lugares_guardados_nombres
+            listplaces= lugares_guardados_nombres(supertemporalUser)
+            listplaces.append('Elegir estacion')
+            self.txtlugar['state']= 'normal'
+            self.txtlugar['values']= listplaces
+            self.txtlugar['state']= 'readonly'
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
+    def update_estacion_origen(self, event): 
+        if self.txtlugar.get()=="": 
+            self.txtest_origen['state']= 'normal'
+            self.txtest_origen['values']= []
+            self.txtest_origen['state']= 'readonly' 
+            return
+        if supertemporalUser: 
+            lugar_valor = self.txtlugar.get() 
+            if lugar_valor == 'Elegir estacion': 
+                self.txtest_origen['state']= 'normal'
+                self.txtest_origen['values']= estaciones['name'].tolist()
+                self.txtest_origen['state']= 'readonly'
+                return
+            else: 
+                from base_queries import estaciones_mas_cercanas   
+                df_est= estaciones_mas_cercanas(supertemporalUser, lugar_valor)  
+                listplaces = df_est['nombre_estacion'].tolist()
+                self.txtest_origen['state']= 'normal'
+                self.txtest_origen['values']= listplaces
+                self.txtest_origen['state']= 'readonly'
+                return
+
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
+    
+    def update_estacion_final(self, event): 
+        if self.hour_sb.get() =="" or self.hour_sb.get()=="":
+            messagebox.showerror("Error", "Primero seleccione hora y minutos")
+            return 
+        if self.txtlugar.get()=="": 
+            self.txtest_final['state']= 'normal'
+            self.txtest_final['values']= []
+            self.txtest_final['state']= 'readonly' 
+            return 
+        if supertemporalUser: 
+            roundTrip = messagebox.askyesno(title='Tipo de viaje',message='¿El viaje es redondo?') 
+            est_origen_val = self.txtest_origen.get() 
+            int_hour       = int(self.hour_sb.get())
+            int_minutes    = int(self.min_sb.get())
+            if roundTrip:
+                self.txtest_final['state']= 'normal'
+                self.txtest_final['values']= [est_origen_val]
+                self.txtest_final['state']= 'readonly'
+            else: 
+                from base_queries import ruta_desde_estacion
+                df_fin = ruta_desde_estacion(dict_estacion_id[est_origen_val], 3600*(int_hour) + 60*int_minutes)
+                list_id_fin = df_fin['id_destino'].tolist()
+                list_est_fin = [ dict_id_estacion[name_est_fin] for name_est_fin in list_id_fin]
+                self.txtest_final['state']= 'normal'
+                self.txtest_final['values']= list_est_fin
+                self.txtest_final['state']= 'readonly'
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
     def user_control(self): 
         self.root.switch_frame(User_options)
 
     def register_new_trip(self): 
-        roundTrip = messagebox.askyesno(title='Tipo de viaje',
-                    message='¿El viaje es redondo?') 
-        
-
+        global supertemporalUser
         messagebox.showinfo("Info", "Viaje Registrado")
 
 

@@ -115,6 +115,15 @@ def lugares_guardados(usuario:str):
 
     return lugares_guardados
 
+def lugares_guardados_nombres(usuario:str):
+    respuesta = db.Usuarios.aggregate([{ "$unwind": "$lugares" },
+                                    { "$match": { "nombre_usuario": usuario}},
+                                    { "$project": { "_id":0, "lugares.nombre_lugar" : 1 }}])
+    lugares = []
+    for res in respuesta:
+        lugares.append(res['lugares']['nombre_lugar'])
+    return lugares
+
 # Determina si un nombre de lugar ya ha sido ocupado por ese usuario
 def existe_lugar(usuario:str, nombre_lugar:str):
     existe = db.Usuarios.find_one({'nombre_usuario': usuario, 'lugares.nombre_lugar':nombre_lugar})
