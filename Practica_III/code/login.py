@@ -1,6 +1,8 @@
 from tkinter import* #pip install tk 
 from tkinter import ttk
 from PIL import Image, ImageTk  #pip install pillow
+import requests
+import urllib.parse
 from tkinter import messagebox
 import pandas as pd 
 import numpy as np
@@ -80,7 +82,7 @@ class Login_window(Frame):
         registerbtn.place(x=110, y=280, width=120, height=35)
 
     def register_window(self): 
-        self.root.switch_frame(Register)
+        self.root.switch_frame(Register_Direction)
 
     def login(self): 
         if self.txtuser.get()=="":
@@ -97,6 +99,101 @@ class Login_window(Frame):
             else: 
                 self.txtuser.delete(0,END)
                 messagebox.showerror("Error", "Usuario no existe,debe registrarse")
+
+class Register_Direction(Frame):
+    def __init__(self, root):
+        self.root=root
+        self.root.title("Register")
+        self.root.geometry("1550x800+0+0")
+
+        bg = Image.open("img/background.jpg")
+        bg = bg.resize( (1550, 800), Image.ANTIALIAS)
+        self.bg = ImageTk.PhotoImage(bg)
+        lbl_bg  = Label(self.root, image= self.bg)
+        lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
+
+        Frame.__init__(self, root)
+        frame = Frame(self.root, bg="black")
+        frame.place(x=300, y=100, width= 340, height=600)
+
+        img1 = Image.open("img/img_logo.png")
+        img1 = img1.resize((100,100), Image.ANTIALIAS)
+        self.photoImage1= ImageTk.PhotoImage(img1)
+        lblimg=Label(frame, image=self.photoImage1, bg="black", borderwidth=0)
+        lblimg.place(x=130, y=20, width=100, height=100)
+
+        get_str = Label(frame, text="Registrate", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
+        get_str.place(x=120, y=100)
+
+        #Label 
+        username=Label(frame, text="Username", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        username.place(x=70, y=155)
+
+        self.txtuser = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.txtuser.place(x=40, y=180, width=240)
+
+        firstplace= Label(frame, text="Lugar favorito", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        firstplace.place(x=70, y=215)
+
+        self.txtfirstplace = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.txtfirstplace.place(x=40, y=240, width=240)
+
+        address= Label(frame, text="Direccion", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        address.place(x=70, y=275)
+
+        self.txtaddress = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.txtaddress.place(x=40, y=300, width=240)
+
+
+        #Icon Image
+        img2 = Image.open("img/img_user.png")
+        img2 = img2.resize((25,25), Image.ANTIALIAS)
+        self.photoImage2= ImageTk.PhotoImage(img2)
+        lblimg1=Label(frame, image=self.photoImage2, bg="black", borderwidth=0)
+        lblimg1.place(x=40, y=155, width=25, height=25)
+
+        #Login Button
+        registerbtn=Button(frame,command=self.register, text="Registrar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        registerbtn.place(x=40, y=420, width=120, height=35)
+
+        loginnowbtn=Button(frame,command=self.login_window, text="Ir a Login",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        loginnowbtn.place(x=170, y=420, width=120, height=35)
+
+    def login_window(self): 
+        self.root.switch_frame(Login_window)
+
+    def register(self):         
+        usernameVal  = self.txtuser.get() 
+        firstplaceVal= self.txtfirstplace.get() 
+        adressVal    = self.txtaddress.get()
+        if usernameVal==""  or adressVal=="" or firstplaceVal=="":
+            messagebox.showerror("Error", "Todos los campos deben estar llenos")
+            return None
+        else:
+            from base_queries import existe_usuario
+            existe_user = existe_usuario(usernameVal)
+            if existe_user:
+                messagebox.showerror("Error", "El usuario ya existe, favor de hacer login")
+                self.root.switch_frame(Login_window)
+            else: 
+                global supertemporalUser
+                supertemporalUser=usernameVal
+                try: 
+                    url = 'https://nominatim.openstreetmap.org/search/' + urllib.parse.quote(adressVal) +'?format=json'
+                    response = requests.get(url).json()
+                    latitudeVal = float(response[0]["lat"])
+                    longitudeVal = float(response[0]["lon"])
+                except: 
+                    messagebox.showerror("Error", "No se encuentra la direccion, buscar como longitud, latitud")
+                    self.root.switch_frame(Register)    
+                from base_queries import crear_usuario
+                crear_usuario(usernameVal, firstplaceVal, float(longitudeVal), float(latitudeVal))
+                messagebox.showinfo("Success", f"Registro Exitoso, bienvenido {supertemporalUser}")
+                self.root.switch_frame(User_options)
+                
+
+
+
 
 class Register(Frame):
     def __init__(self, root):
@@ -575,7 +672,7 @@ class Search_estations(Frame):
         get_str.place(x=30, y=30)
 
         #Label 
-        lugar=Label(frame, text="Elegir Lugar de origen", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        lugar=Label(frame, text="Lugares guardados", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         lugar.place(x=40, y=70)
 
         self.txtlugar = ttk.Combobox(frame, state="readonly",values=[])
