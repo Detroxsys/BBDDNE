@@ -362,8 +362,8 @@ class User_options(Frame):
 
         from base_queries import historial_viajes
         resultado = historial_viajes(supertemporalUser)
-        resultado['origen_name'] = resultado['id_origen']
-        resultado['destino_name']= resultado['id_destino']
+        resultado['origen_name'] = resultado['id_origen'].copy()
+        resultado['destino_name']= resultado['id_destino'].copy()
         def aux_funct(row):
             row.origen_name = dict_id_estacion[row.origen_name]
             row.destino_name = dict_id_estacion[row.destino_name]
@@ -377,12 +377,87 @@ class User_options(Frame):
         pt.show()
             
     def make_place(self): 
-        self.root.switch_frame(Register_Place)
+        self.root.switch_frame(Register_Place_Direction)
     
     def make_trip(self): 
         self.root.switch_frame(Register_Trip)
         messagebox.showinfo('Instrucciones', 'Las opciones se actualizan a tiempo real')
-        
+
+class Register_Place_Direction(Frame):
+    def __init__(self, root):
+        self.root=root
+        self.root.title("Register Place")
+        self.root.geometry("1550x800+0+0")
+
+        bg = Image.open("img/background.jpg")
+        bg = bg.resize( (1550, 800), Image.ANTIALIAS)
+        self.bg = ImageTk.PhotoImage(bg)
+        lbl_bg  = Label(self.root, image= self.bg)
+        lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
+
+        Frame.__init__(self, root)
+        frame = Frame(self.root, bg="black")
+        frame.place(x=300, y=100, width= 340, height=400)
+
+        get_str = Label(frame, text="Registrar/Actualizar Lugar", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
+        get_str.place(x=30, y=30)
+
+        firstplace= Label(frame, text="Lugar favorito", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        firstplace.place(x=70, y=80)
+
+        self.txtfirstplace = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.txtfirstplace.place(x=40, y=110, width=240)
+
+        address= Label(frame, text="Direccion", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        address.place(x=70, y=140)
+
+        self.txtaddress = ttk.Entry(frame, font =("calibri", 15, "bold"))
+        self.txtaddress.place(x=40, y=170, width=240)
+
+        #Login Button
+        registerbtn=Button(frame,command=self.register_new_place, text="Registrar Lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        registerbtn.place(x=30, y=320, width=140, height=35)
+
+        exitbtn=Button(frame,command=self.user_control, text="Ir a Panel",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        exitbtn.place(x=180, y=320, width=140, height=35)
+
+    def user_control(self): 
+        self.root.switch_frame(User_options)
+
+    def register_new_place(self):         
+        firstplaceVal= self.txtfirstplace.get() 
+        adressVal    = self.txtaddress.get()
+        if  adressVal =="" or firstplaceVal=="":
+            messagebox.showerror("Error", "Todos los campos deben estar llenos")
+            return None
+        else:
+            global supertemporalUser
+            if supertemporalUser: 
+                from base_queries import nuevo_lugar
+                from base_queries import existe_lugar 
+                existplace = existe_lugar(supertemporalUser, firstplaceVal)
+                if existplace: 
+                    self.txtfirstplace.delete(0, END)
+                    self.txtaddress.delete(0, END)
+                    messagebox.showerror("Error", "El lugar ya existe, cambie el nombre")
+                else: 
+                    try: 
+                        url = 'https://nominatim.openstreetmap.org/search/' + urllib.parse.quote(adressVal) +'?format=json'
+                        response = requests.get(url).json()
+                        latitudeVal = float(response[0]["lat"])
+                        longitudeVal = float(response[0]["lon"])
+                    except: 
+                        messagebox.showerror("Error", "No se encuentra la direccion, buscar como longitud, latitud")
+                        self.root.switch_frame(Register_Place)      
+
+                    nuevo_lugar(supertemporalUser, firstplaceVal, longitudeVal, latitudeVal)
+                    messagebox.showinfo("Info", "Lugar creado con exito")
+                    self.root.switch_frame(User_options)
+            else: 
+                self.root.switch_frame(Login_window)
+                messagebox.showerror("Error", "No hay usuario registrado")
+
+
 class Register_Place(Frame):
     def __init__(self, root):
         self.root=root
