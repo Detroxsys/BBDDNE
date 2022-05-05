@@ -28,6 +28,7 @@ También es posible planear rutas a partir de un lugar o estación seleccionada 
 3. Ejecutar el contenedor.
 4. Ejecutar base_construction.py, esto creará la base `BDBicis` en el servidor y cargará los datos reunidos a la base.
 6. Ejecutar login.py, esto desplegará una ventana con la interfaz gráfica de la aplicación.
+7. Se puede crear un nuevo usuario o usar el siguiente usuario precargado : `ProfePime`.
 
 ## ADVERTENCIAS:
 - Para que los directorios funcionen se debe abrir la carpeta entera (PROYECTO_III) desde VSCode, de otro modo se tendran que indicar la ruta específica de cada archivo.
