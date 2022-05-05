@@ -57,4 +57,4 @@ db.Rutas.insert_many([{
 from base_queries import crear_usuario, nuevo_lugar
 
 crear_usuario('ProfePime', 'Casa Abuela', -73.98, 40.752)
-nuevo_lugar('Trabajo', -73.955, 40.77)
+nuevo_lugar('ProfePime', 'Trabajo', -73.955, 40.77)
