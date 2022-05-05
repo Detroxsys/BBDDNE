@@ -209,22 +209,22 @@ class User_options(Frame):
         get_str.place(x=30, y=30)
 
         viewPlacesbtn=Button(frame,command = self.my_places, text="Ver Mis lugares",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewPlacesbtn.place(x=50, y=120, width=180, height=50)
+        viewPlacesbtn.place(x=70, y=120, width=180, height=50)
 
         viewTripsbtn=Button(frame,command = self.my_trips, text="Ver Mis Viajes",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewTripsbtn.place(x=250, y=120, width=180, height=50)
+        viewTripsbtn.place(x=270, y=120, width=180, height=50)
 
         viewTripsbtn=Button(frame,command = self.my_est, text="Ver Estaciones Cercanas",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewTripsbtn.place(x=450, y=120, width=210, height=50)
+        viewTripsbtn.place(x=470, y=120, width=210, height=50)
 
         registerPlacesbtn=Button(frame,command = self.make_place, text="Registrar lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        registerPlacesbtn.place(x=50, y=220, width=180, height=50)
+        registerPlacesbtn.place(x=170, y=220, width=180, height=50)
 
         registerTripsbtn=Button(frame,command = self.make_trip, text="Hacer Nuevo Viaje",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        registerTripsbtn.place(x=250, y=220, width=180, height=50)
+        registerTripsbtn.place(x=400, y=220, width=180, height=50)
 
         exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        exitbtn.place(x=250, y=310, width=120, height=35)
+        exitbtn.place(x=320, y=310, width=120, height=35)
 
     def login_window(self): 
         self.root.switch_frame(Login_window)
@@ -284,6 +284,7 @@ class User_options(Frame):
     
     def make_trip(self): 
         self.root.switch_frame(Register_Trip)
+        messagebox.showinfo('Instrucciones', 'Las opciones se actualizan a tiempo real')
         
 class Register_Place(Frame):
     def __init__(self, root):
@@ -376,6 +377,19 @@ class Register_Trip(Frame):
         get_str = Label(frame, text="Hacer Nuevo Viaje", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=30, y=30)
 
+        hiper_text = """Instrucciones de uso:
+1. Elige uno de tus lugares guardados para el cual deseas buscar estaciones cercanas.La opción “Elegir estación” te permite elegir cualquier estación como origen.
+
+2. Introduce la duración deseada de tu viaje.
+
+3. Selecciona una estación de origen, solo se muestran las estaciones cercanas a tu lugar guardado, o todas en caso de haber elegido Elegir estación.
+
+4. En estación final se muestran las estaciones de destino sugeridas por el sistema. Selecciona una.
+
+Nota: Si no hay viajes posibles dentro con tiempo cercano a tu tiempo deseado y el origen elegido,no se mostrará ninguna opción."""
+        instructions = Label(frame, wraplength=270, justify='left', text=hiper_text,  font = ("calibri", 10), fg="white", bg="black")
+        instructions.place(x=400, y=50, width=270)
+
         #Label 
         lugar=Label(frame, text="Lugar de origen", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         lugar.place(x=40, y=70)
@@ -459,9 +473,12 @@ class Register_Trip(Frame):
 
     
     def update_estacion_final(self, event): 
+        self.txtest_final['state']= 'normal'
+        self.txtest_final['values']= []
+        self.txtest_final['state']= 'readonly' 
         if self.hour_sb.get() =="" or self.hour_sb.get()=="":
             messagebox.showerror("Error", "Primero seleccione hora y minutos")
-            return 
+            return
         if self.txtlugar.get()=="": 
             self.txtest_final['state']= 'normal'
             self.txtest_final['values']= []
@@ -473,10 +490,15 @@ class Register_Trip(Frame):
             int_hour       = int(self.hour_sb.get())
             int_minutes    = int(self.min_sb.get())
             if self.roundTrip:
-                messagebox.showinfo('Info', 'En estacion final se muestra el punto medio de recorrido')
                 from base_queries import viaje_redondo
                 df_fin = viaje_redondo(dict_estacion_id[est_origen_val], 3600*(int_hour) + 60*int_minutes)
                 list_id_fin = df_fin['punto_medio'].tolist()
+                if not list_id_fin: 
+                    self.txtest_final['state']= 'normal'
+                    self.txtest_final['values']= []
+                    self.txtest_final['state']= 'readonly'
+                    messagebox.showinfo('Info', 'No se encontraron rutas que cumplan origen y tiempo deseado')
+                    return
                 list_est_fin = [ dict_id_estacion[name_est_fin] for name_est_fin in list_id_fin]
                 self.txtest_final['state']= 'normal'
                 self.txtest_final['values']= list_est_fin
@@ -485,6 +507,12 @@ class Register_Trip(Frame):
                 from base_queries import ruta_desde_estacion
                 df_fin = ruta_desde_estacion(dict_estacion_id[est_origen_val], 3600*(int_hour) + 60*int_minutes)
                 list_id_fin = df_fin['id_destino'].tolist()
+                if not list_id_fin: 
+                    self.txtest_final['state']= 'normal'
+                    self.txtest_final['values']= []
+                    self.txtest_final['state']= 'readonly'
+                    messagebox.showinfo('Info', 'No se encontraron rutas que cumplan origen y tiempo deseado')
+                    return
                 list_est_fin = [ dict_id_estacion[name_est_fin] for name_est_fin in list_id_fin]
                 self.txtest_final['state']= 'normal'
                 self.txtest_final['values']= list_est_fin
