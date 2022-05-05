@@ -1,11 +1,9 @@
-from email import message
 from tkinter import* #pip install tk 
 from tkinter import ttk
 from PIL import Image, ImageTk  #pip install pillow
 from tkinter import messagebox
 import pandas as pd 
 import numpy as np
-from cassandra.cluster import Cluster
 from pandastable import Table, TableModel 
 from bson.objectid import ObjectId
 import pymongo
@@ -56,11 +54,11 @@ class Login_window(Frame):
         lblimg1=Label(frame, image=self.photoImage1, bg="black", borderwidth=0)
         lblimg1.place(x=120, y=20, width=100, height=100)
 
-        get_str = Label(frame, text="Login", font =("calibri", 20, "bold"), fg="lightblue", bg="black")
+        get_str = Label(frame, text="Login", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=130, y=100)
         
         #Label 
-        username=Label(frame, text="Username", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        username=Label(frame, text="Username", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         username.place(x=70, y=155)
 
         self.txtuser = ttk.Entry(frame, font =("calibri", 15, "bold"))
@@ -74,11 +72,11 @@ class Login_window(Frame):
         lblimg1.place(x=40, y=155, width=25, height=25)
 
         #Login Button
-        loginbtn=Button(frame,command=self.login, text="Login",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        loginbtn=Button(frame,command=self.login, text="Login",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         loginbtn.place(x=110, y=230, width=120, height=35)
 
         #Register Button
-        registerbtn=Button(frame,command=self.register_window, text="Registrate",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        registerbtn=Button(frame,command=self.register_window, text="Registrate",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         registerbtn.place(x=110, y=280, width=120, height=35)
 
     def register_window(self): 
@@ -122,29 +120,29 @@ class Register(Frame):
         lblimg=Label(frame, image=self.photoImage1, bg="black", borderwidth=0)
         lblimg.place(x=130, y=20, width=100, height=100)
 
-        get_str = Label(frame, text="Registrate", font =("calibri", 20, "bold"), fg="lightblue", bg="black")
+        get_str = Label(frame, text="Registrate", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=120, y=100)
 
         #Label 
-        username=Label(frame, text="Username", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        username=Label(frame, text="Username", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         username.place(x=70, y=155)
 
         self.txtuser = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.txtuser.place(x=40, y=180, width=240)
 
-        firstplace= Label(frame, text="Lugar favorito", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        firstplace= Label(frame, text="Lugar favorito", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         firstplace.place(x=70, y=215)
 
         self.txtfirstplace = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.txtfirstplace.place(x=40, y=240, width=240)
 
-        longitude=Label(frame, text="Longitud", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        longitude=Label(frame, text="Longitud", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         longitude.place(x=70, y=275)
 
         self.txtlongitude = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.txtlongitude.place(x=40, y=300, width=240)
 
-        latitude=Label(frame, text="Latitud", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        latitude=Label(frame, text="Latitud", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         latitude.place(x=70, y=335)
 
         self.txtlatitude = ttk.Entry(frame, font =("calibri", 15, "bold"))
@@ -158,10 +156,10 @@ class Register(Frame):
         lblimg1.place(x=40, y=155, width=25, height=25)
 
         #Login Button
-        registerbtn=Button(frame,command=self.register, text="Registrar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        registerbtn=Button(frame,command=self.register, text="Registrar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         registerbtn.place(x=40, y=420, width=120, height=35)
 
-        loginnowbtn=Button(frame,command=self.login_window, text="Ir a Login",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        loginnowbtn=Button(frame,command=self.login_window, text="Ir a Login",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         loginnowbtn.place(x=170, y=420, width=120, height=35)
 
     def login_window(self): 
@@ -207,22 +205,22 @@ class User_options(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=50, y=150, width= 600, height=400)
 
-        get_str = Label(frame, text="Panel Usuario", font =("calibri", 20, "bold"), fg="lightblue", bg="black")
+        get_str = Label(frame, text="Panel Usuario", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=30, y=30)
 
-        viewPlacesbtn=Button(frame,command = self.my_places, text="Ver Mis lugares",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        viewPlacesbtn=Button(frame,command = self.my_places, text="Ver Mis lugares",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         viewPlacesbtn.place(x=120, y=120, width=180, height=50)
 
-        registerPlacesbtn=Button(frame,command = self.make_place, text="Registrar lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        registerPlacesbtn=Button(frame,command = self.make_place, text="Registrar lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         registerPlacesbtn.place(x=320, y=120, width=180, height=50)
 
-        viewTripsbtn=Button(frame,command = self.my_trips, text="Ver Mis Viajes",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        viewTripsbtn=Button(frame,command = self.my_trips, text="Ver Mis Viajes",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         viewTripsbtn.place(x=120, y=220, width=180, height=50)
 
-        registerTripsbtn=Button(frame,command = self.make_trip, text="Hacer Nuevo Viaje",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        registerTripsbtn=Button(frame,command = self.make_trip, text="Hacer Nuevo Viaje",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         registerTripsbtn.place(x=320, y=220, width=180, height=50)
 
-        exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         exitbtn.place(x=250, y=310, width=120, height=35)
 
     def login_window(self): 
@@ -297,32 +295,32 @@ class Register_Place(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=300, y=100, width= 340, height=400)
 
-        get_str = Label(frame, text="Registrar/Actualizar Lugar", font =("calibri", 20, "bold"), fg="lightblue", bg="black")
+        get_str = Label(frame, text="Registrar/Actualizar Lugar", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=30, y=30)
 
-        firstplace= Label(frame, text="Lugar favorito", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        firstplace= Label(frame, text="Lugar favorito", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         firstplace.place(x=70, y=80)
 
         self.txtfirstplace = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.txtfirstplace.place(x=40, y=110, width=240)
 
-        longitude=Label(frame, text="Longitud", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        longitude=Label(frame, text="Longitud", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         longitude.place(x=70, y=150)
 
         self.txtlongitude = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.txtlongitude.place(x=40, y=180, width=240)
 
-        latitude=Label(frame, text="Latitud", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        latitude=Label(frame, text="Latitud", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         latitude.place(x=70, y=210)
 
         self.txtlatitude = ttk.Entry(frame, font =("calibri", 15, "bold"))
         self.txtlatitude.place(x=40, y=240, width=240)
 
         #Login Button
-        registerbtn=Button(frame,command=self.register_new_place, text="Registrar Lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        registerbtn=Button(frame,command=self.register_new_place, text="Registrar Lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         registerbtn.place(x=30, y=320, width=140, height=35)
 
-        exitbtn=Button(frame,command=self.user_control, text="Ir a Panel",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        exitbtn=Button(frame,command=self.user_control, text="Ir a Panel",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         exitbtn.place(x=180, y=320, width=140, height=35)
 
     def user_control(self): 
@@ -369,11 +367,11 @@ class Register_Trip(Frame):
         frame = Frame(self.root, bg="black")
         frame.place(x=80, y=100, width= 700, height=600)
 
-        get_str = Label(frame, text="Hacer Nuevo Viaje", font =("calibri", 20, "bold"), fg="lightblue", bg="black")
+        get_str = Label(frame, text="Hacer Nuevo Viaje", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=30, y=30)
 
         #Label 
-        lugar=Label(frame, text="Lugar de origen", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        lugar=Label(frame, text="Lugar de origen", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         lugar.place(x=40, y=70)
 
         self.txtlugar = ttk.Combobox(frame, state="readonly",values=['Elegir estacion'])
@@ -381,7 +379,7 @@ class Register_Trip(Frame):
         self.txtlugar.bind('<Enter>', self.update_place)
         self.txtlugar.bind('<<ComboboxSelected>>', self.update_estacion_origen)
 
-        duracion=Label(frame, text="Duración:", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        duracion=Label(frame, text="Duración:", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         duracion.place(x=40, y=120)
     
         self.hour_sb = ttk.Spinbox(frame,from_=0,to=9,width=40, wrap=True, state="readonly",font=('Times', 20),justify=CENTER)
@@ -389,11 +387,11 @@ class Register_Trip(Frame):
         self.hour_sb.place(x=40,y= 150, width=50, height=25)
         self.min_sb.place(x=100,y= 150, width=50, height=25)
 
-        msg = Label(frame, text="Hours    Minutes",font=("Times", 12),fg="lightblue", bg = "black")
+        msg = Label(frame, text="Horas    Minutos",font=("Times", 12),fg="lightseagreen", bg = "black")
         msg.place(x=40, y=170)
 
 
-        est_origen=Label(frame, text="Estación de origen", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        est_origen=Label(frame, text="Estación de origen", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         est_origen.place(x=40, y=190)
 
         self.txtest_origen = ttk.Combobox(frame, state="readonly",values=[])
@@ -401,17 +399,17 @@ class Register_Trip(Frame):
         self.txtest_origen.bind('<<ComboboxSelected>>', self.update_estacion_final)        
 
 
-        est_final=Label(frame, text="Estación final", font =("calibri", 15, "bold"), fg="lightblue", bg="black")
+        est_final=Label(frame, text="Estación final", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         est_final.place(x=40, y=240)
 
         self.txtest_final = ttk.Combobox(frame, state="readonly",values=[])
         self.txtest_final.place(x=40, y=270, width=240)
 
         #Login Button
-        registerbtn=Button(frame,command=self.register_new_trip, text="Registrar Viaje",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        registerbtn=Button(frame,command=self.register_new_trip, text="Registrar Viaje",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         registerbtn.place(x=30, y=520, width=140, height=35)
 
-        exitbtn=Button(frame,command=self.user_control, text="Ir a Panel",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightblue")
+        exitbtn=Button(frame,command=self.user_control, text="Ir a Panel",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         exitbtn.place(x=180, y=520, width=140, height=35)
 
 
