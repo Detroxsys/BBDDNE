@@ -31,6 +31,6 @@ También es posible planear rutas a partir de un lugar o estación seleccionada 
 7. Se puede crear un nuevo usuario o usar el siguiente usuario precargado : `ProfePime`.
 
 ## ADVERTENCIAS:
-- Para que los directorios funcionen se debe abrir la carpeta entera (PROYECTO_III) desde VSCode, de otro modo se tendran que indicar la ruta específica de cada archivo.
+- Para que los directorios funcionen se debe abrir la carpeta entera (PRACTICA_III) desde VSCode, de otro modo se tendran que indicar la ruta específica de cada archivo.
 - Si al desplegar una ventana en una consulta, esta sale en blanco, significa que no existen registros para dicha consulta.
 - Para un tiempo de viaje seleccionado y una estación elegida, es posible que no se muestren sugerencias en "estación final", esto se debe a que se muestran únicamente resultados dentro de un rango de +-60 minutos del tiempo elegido.
