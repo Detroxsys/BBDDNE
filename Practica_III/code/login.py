@@ -12,7 +12,7 @@ import pymongo
 from pymongo import GEOSPHERE
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-
+from datetime import datetime, timedelta
 # es importante mapear al puerto usando -p 27017:27017 al construir el contenedor o en el docker-compose.yml
 conn_str = "mongodb://localhost:27017"
 client = pymongo.MongoClient(conn_str, server_api=ServerApi('1'), serverSelectionTimeoutMS=5000)
@@ -261,6 +261,17 @@ class User_options(Frame):
 
         from base_queries import historial_viajes
         resultado = historial_viajes(supertemporalUser)
+        resultado['origen_name'] = resultado['id_origen']
+        resultado['destino_name']= resultado['id_destino']
+        def aux_funct(row):
+            row.origen_name = dict_id_estacion[row.origen_name]
+            row.destino_name = dict_id_estacion[row.destino_name]
+            return row
+
+        resultado = resultado.apply(aux_funct, axis=1)
+        resultado = resultado[['origen_name', 'destino_name', 'hora_salida', 'hora_llegada']]
+        #resultado['id_origen'] = resultado['id_origen'].apply(lambda x: dict_estacion_id(x))
+        #resultado = resultado.drop(['_id', 'id_origen', 'id_destino' , 'usuario'], axis=1)
         pt = Table(f, dataframe=resultado,showtoolbar=True, showstatusbar=True)
         pt.show()
             
@@ -453,13 +464,18 @@ class Register_Trip(Frame):
             self.txtest_final['state']= 'readonly' 
             return 
         if supertemporalUser: 
-            roundTrip = messagebox.askyesno(title='Tipo de viaje',message='¿El viaje es redondo?') 
+            self.roundTrip = messagebox.askyesno(title='Tipo de viaje',message='¿El viaje es redondo?') 
             est_origen_val = self.txtest_origen.get() 
             int_hour       = int(self.hour_sb.get())
             int_minutes    = int(self.min_sb.get())
-            if roundTrip:
+            if self.roundTrip:
+                messagebox.showinfo('Info', 'En estacion final se muestra el punto medio de recorrido')
+                from base_queries import viaje_redondo
+                df_fin = viaje_redondo(dict_estacion_id[est_origen_val], 3600*(int_hour) + 60*int_minutes)
+                list_id_fin = df_fin['punto_medio'].tolist()
+                list_est_fin = [ dict_id_estacion[name_est_fin] for name_est_fin in list_id_fin]
                 self.txtest_final['state']= 'normal'
-                self.txtest_final['values']= [est_origen_val]
+                self.txtest_final['values']= list_est_fin
                 self.txtest_final['state']= 'readonly'
             else: 
                 from base_queries import ruta_desde_estacion
@@ -476,10 +492,37 @@ class Register_Trip(Frame):
     def user_control(self): 
         self.root.switch_frame(User_options)
 
-    def register_new_trip(self): 
+    def register_new_trip(self):         
         global supertemporalUser
-        messagebox.showinfo("Info", "Viaje Registrado")
+        lugar_valor    = str(self.txtlugar.get())
+        est_origen_val = str(self.txtest_origen.get()) 
+        est_fin_val    = str(self.txtest_final.get())
+        int_hour       = int(self.hour_sb.get())
+        int_minutes    = int(self.min_sb.get())
+        if lugar_valor=="" or est_origen_val=="" or est_fin_val=="" or int_hour=="" or int_minutes=="": 
+            messagebox.showerror("Error", "Todos los campos deben estar llenos")
+            return None
+        else: 
+            if not supertemporalUser: 
+                messagebox.showerror("Error", "El usuario debería estar logueado")
+                self.root.switch_frame(Login_window)
+                return 
+            else: 
 
+                actual_time = datetime.now()
+                tot_recorrido = 3600*int_hour +60*int_minutes
+                final_time  = actual_time + timedelta(seconds=tot_recorrido)
+                from base_queries import carga_viaje
+                carga_viaje(dict_estacion_id[est_origen_val], dict_estacion_id[est_fin_val], 
+                              actual_time, final_time, supertemporalUser)
+                from base_queries import actualizar_tiempo
+                if self.roundTrip: 
+                    actualizar_tiempo(dict_estacion_id[est_origen_val], dict_estacion_id[est_fin_val], (3600*int_hour +60*int_minutes)/2)
+                    actualizar_tiempo(dict_estacion_id[est_origen_val], dict_estacion_id[est_fin_val], (3600*int_hour +60*int_minutes)/2)
+                else:
+                    actualizar_tiempo(dict_estacion_id[est_origen_val], dict_estacion_id[est_fin_val], 3600*int_hour +60*int_minutes)   
+        messagebox.showinfo("Info", "Viaje Registrado")
+        self.root.switch_frame(User_options)
 
 class SampleApp(Tk):
     def __init__(self):

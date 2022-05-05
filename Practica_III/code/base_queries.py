@@ -261,7 +261,7 @@ def actualizar_tiempo(origen_id:int, destino_id:int, tiempo:float):
 
 #Consultar viajes realizados
 def historial_viajes(usuario:str):
-    viajes = db.Viajes.find({'nombre_usuario': usuario})
+    viajes = db.Viajes.find({'usuario': usuario})
     return pd.DataFrame(viajes)
 
 ################################################################################
