@@ -203,28 +203,34 @@ class User_options(Frame):
 
         Frame.__init__(self, root)
         frame = Frame(self.root, bg="black")
-        frame.place(x=50, y=150, width= 600, height=400)
+        frame.place(x=50, y=150, width= 750, height=400)
 
         get_str = Label(frame, text="Panel Usuario", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=30, y=30)
 
         viewPlacesbtn=Button(frame,command = self.my_places, text="Ver Mis lugares",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewPlacesbtn.place(x=120, y=120, width=180, height=50)
-
-        registerPlacesbtn=Button(frame,command = self.make_place, text="Registrar lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        registerPlacesbtn.place(x=320, y=120, width=180, height=50)
+        viewPlacesbtn.place(x=50, y=120, width=180, height=50)
 
         viewTripsbtn=Button(frame,command = self.my_trips, text="Ver Mis Viajes",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewTripsbtn.place(x=120, y=220, width=180, height=50)
+        viewTripsbtn.place(x=250, y=120, width=180, height=50)
+
+        viewTripsbtn=Button(frame,command = self.my_est, text="Ver Estaciones Cercanas",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        viewTripsbtn.place(x=450, y=120, width=210, height=50)
+
+        registerPlacesbtn=Button(frame,command = self.make_place, text="Registrar lugar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        registerPlacesbtn.place(x=50, y=220, width=180, height=50)
 
         registerTripsbtn=Button(frame,command = self.make_trip, text="Hacer Nuevo Viaje",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        registerTripsbtn.place(x=320, y=220, width=180, height=50)
+        registerTripsbtn.place(x=250, y=220, width=180, height=50)
 
         exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         exitbtn.place(x=250, y=310, width=120, height=35)
 
     def login_window(self): 
         self.root.switch_frame(Login_window)
+
+    def my_est(self): 
+        self.root.switch_frame(Search_estations)
     def my_places(self): 
         global supertemporalUser
         if supertemporalUser==None:
@@ -521,6 +527,78 @@ class Register_Trip(Frame):
                     actualizar_tiempo(dict_estacion_id[est_origen_val], dict_estacion_id[est_fin_val], 3600*int_hour +60*int_minutes)   
         messagebox.showinfo("Info", "Viaje Registrado")
         self.root.switch_frame(User_options)
+
+
+class Search_estations(Frame):
+    def __init__(self, root):
+        self.root=root
+        self.root.title("Booksr")
+        self.root.geometry("1550x800+0+0")
+        
+        self.bg = ImageTk.PhotoImage(file="img/background.jpg")
+        lbl_bg  = Label(self.root, image= self.bg)
+        lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
+
+        Frame.__init__(self, root)
+        frame = Frame(self.root, bg="black")
+        frame.place(x=250, y=100, width= 300, height=350)
+
+        get_str = Label(frame, text="Estaciones cercanas", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
+        get_str.place(x=30, y=30)
+
+        #Label 
+        lugar=Label(frame, text="Elegir Lugar de origen", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        lugar.place(x=40, y=70)
+
+        self.txtlugar = ttk.Combobox(frame, state="readonly",values=[])
+        self.txtlugar.place(x=40, y=100, width=240)
+        self.txtlugar.bind('<Enter>', self.update_place)
+
+        #Login Button
+        registerbtn=Button(frame,command=self.get_estations, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        registerbtn.place(x=80, y=150, width=140, height=35)
+
+        exitbtn=Button(frame,command=self.user_control, text="Ir a Panel",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        exitbtn.place(x=80, y=200, width=140, height=35)
+
+
+    def update_place(self, event):
+        if supertemporalUser: 
+            from base_queries import  lugares_guardados_nombres
+            listplaces= lugares_guardados_nombres(supertemporalUser)
+            self.txtlugar['state']= 'normal'
+            self.txtlugar['values']= listplaces
+            self.txtlugar['state']= 'readonly'
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
+    def get_estations(self): 
+        if self.txtlugar.get()=="": 
+            messagebox.showerror("Error", "Debes llenar todos los campos")
+            return
+        if supertemporalUser: 
+            newWindow = Toplevel(self.root)
+            Frame.__init__(self)
+            newWindow.geometry('600x400+200+100')
+            newWindow.title('Tabla')
+            f = Frame(newWindow)
+            f.pack(fill=BOTH,expand=1)
+            lugar_valor = self.txtlugar.get() 
+            from base_queries import estaciones_mas_cercanas   
+            df_est= estaciones_mas_cercanas(supertemporalUser, lugar_valor)  
+            df_est.drop('_id', axis=1, inplace=True)
+            pt = Table(f, dataframe=df_est,showtoolbar=True, showstatusbar=True)
+            pt.show()
+
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
+    def user_control(self): 
+        self.root.switch_frame(User_options)
+
+      
 
 class SampleApp(Tk):
     def __init__(self):
