@@ -8,11 +8,10 @@ import pandas as pd
 import numpy as np
 from pandastable import Table, TableModel 
 from bson.objectid import ObjectId
-import pymongo
-from pymongo import GEOSPHERE
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
+from neomodel import db, clear_neo4j_database
 from datetime import datetime, timedelta
+import base_queries
+
 # es importante mapear al puerto usando -p 27017:27017 al construir el contenedor o en el docker-compose.yml
 
 # Probando conexión
@@ -82,7 +81,7 @@ class Login_window(Frame):
         else: 
             usernameVal = self.txtuser.get()
             #from base_queries import existe_usuario
-            existe_user = True
+            existe_user = base_queries.CheckUser(usernameVal)
             if existe_user:
                 global supertemporalUser 
                 supertemporalUser=usernameVal
@@ -113,7 +112,7 @@ class Register(Frame):
         lblimg1=Label(frame, image=self.photoImage1, bg="black", borderwidth=0)
         lblimg1.place(x=120, y=20, width=100, height=100)
 
-        get_str = Label(frame, text="Login", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
+        get_str = Label(frame, text="Registrate", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=130, y=100)
         
         #Label 
@@ -147,15 +146,14 @@ class Register(Frame):
             return None
         else:
             #from base_queries import existe_usuario
-            existe_user = True
+            existe_user = base_queries.CheckUser(usernameVal)
             if existe_user:
                 messagebox.showerror("Error", "El usuario ya existe, favor de hacer login")
                 self.root.switch_frame(Login_window)
             else: 
                 global supertemporalUser
                 supertemporalUser=usernameVal
-                #from base_queries import crear_usuario
-                #crear_usuario(usernameVal, firstplaceVal, float(longitudeVal), float(latitudeVal))
+                base_queries.AltaUsuario(usernameVal)
                 messagebox.showinfo("Success", f"Registro Exitoso, bienvenido {supertemporalUser}")
                 self.root.switch_frame(User_options)
                 
@@ -174,7 +172,7 @@ class User_options(Frame):
 
         Frame.__init__(self, root)
         frame = Frame(self.root, bg="black")
-        frame.place(x=275, y=20, width= 1000, height=500)
+        frame.place(x=125, y=20, width= 1300, height=700)
 
         get_str = Label(frame, text="Panel Usuario", font =("calibri", 20, "bold"), fg="lightseagreen", bg="black")
         get_str.place(x=20, y=20)
@@ -187,16 +185,16 @@ class User_options(Frame):
         chooseStateQ1=Label(frame, text="Elegir Estado", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         chooseStateQ1.place(x=40, y=100)
 
-        self.txtchooseStateQ1 = ttk.Combobox(frame, state="readonly",values=['Elegir valor'])
+        self.txtchooseStateQ1 = ttk.Combobox(frame, state="readonly",values=base_queries.todos_estados())
         self.txtchooseStateQ1.place(x=40, y=140, width=200)
 
         chooseProductQ1=Label(frame, text="Elegir Producto", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         chooseProductQ1.place(x=40, y=180)
 
-        self.txtchooseProductQ1 = ttk.Combobox(frame, state="readonly",values=['Elegir valor'])
+        self.txtchooseProductQ1 = ttk.Combobox(frame, state="readonly",values=base_queries.todos_productos())
         self.txtchooseProductQ1.place(x=40, y=220, width=200)
 
-        q1btn=Button(frame,command= "" , text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        q1btn=Button(frame,command= self.q1Consulta, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         q1btn.place(x=40, y=270, width=180, height=50)
 
         #Dada un estado y tienda verificar si tiene algun incumplimiento de un producto
@@ -206,16 +204,17 @@ class User_options(Frame):
         chooseStateQ2=Label(frame, text="Elegir Estado", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         chooseStateQ2.place(x=260, y=100)
 
-        self.txtchooseStateQ2 = ttk.Combobox(frame, state="readonly",values=['Elegir valor'])
+        self.txtchooseStateQ2 = ttk.Combobox(frame, state="readonly",values=base_queries.todos_estados())
         self.txtchooseStateQ2.place(x=260, y=140, width=200)
+        self.txtchooseStateQ2.bind('<<ComboboxSelected>>', self.update_storeQ2)
 
         chooseStoreQ2=Label(frame, text="Elegir Tienda", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         chooseStoreQ2.place(x=260, y=180)
 
-        self.txtchooseStoreQ2 = ttk.Combobox(frame, state="readonly",values=['Elegir valor'])
+        self.txtchooseStoreQ2 = ttk.Combobox(frame, state="readonly",values=[])
         self.txtchooseStoreQ2.place(x=260, y=220, width=200)
 
-        q2btn=Button(frame,command= "" , text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        q2btn=Button(frame,command= self.q2Consulta, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         q2btn.place(x=260, y=270, width=180, height=50)
 
         #Dada un estado y un producto alternativa sin incumplimiento
@@ -225,70 +224,273 @@ class User_options(Frame):
         chooseStateQ3=Label(frame, text="Elegir Estado", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         chooseStateQ3.place(x=480, y=100)
 
-        self.txtchooseStateQ3 = ttk.Combobox(frame, state="readonly",values=['Elegir valor'])
+        self.txtchooseStateQ3 = ttk.Combobox(frame, state="readonly",values=base_queries.todos_estados())
         self.txtchooseStateQ3.place(x=480, y=140, width=200)
 
         chooseProductQ3=Label(frame, text="Elegir Producto", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
         chooseProductQ3.place(x=480, y=180)
 
-        self.txtchooseStoreQ3 = ttk.Combobox(frame, state="readonly",values=['Elegir valor'])
-        self.txtchooseStoreQ3.place(x=480, y=220, width=200)
+        self.txtchooseProductQ3 = ttk.Combobox(frame, state="readonly",values=base_queries.todos_productos())
+        self.txtchooseProductQ3.place(x=480, y=220, width=200)
 
-        q3btn=Button(frame,command= "" , text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        q3btn=Button(frame,command= self.q3Consulta, text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
         q3btn.place(x=480, y=270, width=180, height=50)
         
         #Recomendar un producto a un usuario segun lo que otros han comprado
-        chooseProductQ4=Label(frame, text="Recomendar similares", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
-        chooseProductQ4.place(x=720, y=70)
+        chooseProductQ7=Label(frame, text="Recomendar similares", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        chooseProductQ7.place(x=720, y=70)
 
-        chooseProdQ4=Label(frame, text="Elegir Producto", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
-        chooseProdQ4.place(x=720, y=100)
+        chooseProdQ7=Label(frame, text="Elegir Producto", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        chooseProdQ7.place(x=720, y=100)
 
-        self.txtchooseProductQ4 = ttk.Combobox(frame, state="readonly",values=['Elegir valor'])
-        self.txtchooseProductQ4.place(x=720, y=140, width=200)
+        self.txtchooseProductQ7 = ttk.Combobox(frame, state="readonly",values=base_queries.todos_productos())
+        self.txtchooseProductQ7.place(x=720, y=140, width=200)
 
-        q4btn=Button(frame,command= "" , text="Consultar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        q4btn.place(x=720, y=180, width=180, height=50)
+        q7btn=Button(frame,command= self.q7Consulta, text="Recomendar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        q7btn.place(x=720, y=180, width=180, height=50)
         
-        viewProducts=Button(frame,command= "" , text="Ver Mis Productos",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewProducts.place(x=40, y=360, width=180, height=50)
 
-        viewStoresbtn=Button(frame,command="", text="Ver Mis Tiendas",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewStoresbtn.place(x=260, y=360, width=180, height=50)
+        #Dada un estado y tienda verificar si tiene algun incumplimiento de un producto
+        chooseProductQ4=Label(frame, text="Comprar Producto", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        chooseProductQ4.place(x=960, y=70)
 
-        viewBestStoresbtn=Button(frame,command = "", text="Tiendas Cumplidas",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewBestStoresbtn.place(x=480, y=360, width=210, height=50)
+        chooseStateQ4=Label(frame, text="Elegir Estado", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        chooseStateQ4.place(x=960, y=100)
 
-        viewWorseStoresbtn=Button(frame,command = "", text="Tiendas Incumplidas",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        viewWorseStoresbtn.place(x=720, y=360, width=210, height=50)
+        self.txtchooseStateQ4 = ttk.Combobox(frame, state="readonly",values=base_queries.todos_estados())
+        self.txtchooseStateQ4.place(x=960, y=140, width=200)
+        self.txtchooseStateQ4.bind('<<ComboboxSelected>>', self.update_storeQ4)
 
+        chooseStoreQ4=Label(frame, text="Elegir Tienda", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        chooseStoreQ4.place(x=960, y=180)
+
+        self.txtchooseStoreQ4 = ttk.Combobox(frame, state="readonly",values=[])
+        self.txtchooseStoreQ4.place(x=960, y=220, width=200)
+        self.txtchooseStoreQ4.bind('<<ComboboxSelected>>', self.update_productQ4)
+
+        chooseProductQ4=Label(frame, text="Elegir Producto", font =("calibri", 15, "bold"), fg="lightseagreen", bg="black")
+        chooseProductQ4.place(x=960, y=260)
+
+        self.txtchooseProductQ4 = ttk.Combobox(frame, state="readonly",values=[])
+        self.txtchooseProductQ4.place(x=960, y=300, width=200)
+
+        q4btn=Button(frame,command= self.q4Consulta, text="Comprar",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        q4btn.place(x=960, y=340, width=180, height=50)
+
+
+        #Botones de Consultas
+        viewProducts=Button(frame,command= self.q5Consulta, text="Ver Mis Productos",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        viewProducts.place(x=40, y=420, width=210, height=50)
+
+        #viewStoresbtn=Button(frame,command="", text="Ver Mis Tiendas",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        #viewStoresbtn.place(x=260, y=360, width=180, height=50)
+
+        viewBestStoresbtn=Button(frame,command = self.q8Consulta, text="Tasa de Incumplimiento por Estado",font =("calibri", 15, "bold"), bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
+        viewBestStoresbtn.place(x=480, y=420, width=500, height=50)
 
         exitbtn=Button(frame,command=self.login_window, text="Salir",font =("calibri", 15, "bold"),bd=3, relief=RIDGE, fg="white", bg="lightseagreen")
-        exitbtn.place(x=400, y=420, width=120, height=50)
+        exitbtn.place(x=550, y=600, width=120, height=50)
 
     def login_window(self): 
+        global supertemporalUser
+        supertemporalUser = None
         self.root.switch_frame(Login_window)
 
+    def update_storeQ2(self, event): 
+        if self.txtchooseStateQ2.get()=="": 
+            self.txtchooseStoreQ2['state']= 'normal'
+            self.txtchooseStoreQ2['values']= []
+            self.txtchooseStoreQ2.set("")
+            self.txtchooseStoreQ2['state']= 'readonly' 
+            return
+        if supertemporalUser: 
+            estado = str(self.txtchooseStateQ2.get())
+            list_est = base_queries.tiendas_en_estado(estado) 
+            self.txtchooseStoreQ2['state']= 'normal'
+            self.txtchooseStoreQ2['values']= list_est
+            self.txtchooseStoreQ2['state']= 'readonly'
+            return
 
-    def my_places(self): 
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
+    def update_productQ4(self, event): 
+        if self.txtchooseStoreQ4.get()=="": 
+            self.txtchooseProductQ4['state']= 'normal'
+            self.txtchooseProductQ4['values']= []
+            self.txtchooseProductQ4.set("")
+            self.txtchooseProductQ4['state']= 'readonly' 
+            return
+        if supertemporalUser: 
+            self.txtchooseProductQ4.set("")
+            tienda = str(self.txtchooseStoreQ4.get())
+            list_est = base_queries.productos_en_tienda(tienda) 
+            self.txtchooseProductQ4['state']= 'normal'
+            self.txtchooseProductQ4['values']= list_est
+            self.txtchooseProductQ4['state']= 'readonly'
+            return
+
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
+    def update_storeQ4(self, event): 
+        if self.txtchooseStateQ4.get()=="": 
+            self.txtchooseStoreQ4['state']= 'normal'
+            self.txtchooseStoreQ4['values']= []
+            self.txtchooseStoreQ4.set("")
+            self.txtchooseStoreQ4['state']= 'readonly' 
+            return
+        if supertemporalUser: 
+            self.txtchooseStoreQ4.set("")
+            estado = str(self.txtchooseStateQ4.get())
+            list_est = base_queries.tiendas_en_estado(estado) 
+            self.txtchooseStoreQ4['state']= 'normal'
+            self.txtchooseStoreQ4['values']= list_est
+            self.txtchooseStoreQ4['state']= 'readonly'
+            return
+
+        else: 
+            messagebox.showerror("Error", "El usuario no esta logueado")
+            self.root.switch_frame(Login_window)
+
+    def q1Consulta(self): 
         global supertemporalUser
-        if supertemporalUser==None:
+        if supertemporalUser==None: 
             self.root.switch_frame(Login_window)
             messagebox.showerror("Error", "No hay usuario registrado")
+            return
+        estado = self.txtchooseStateQ1.get()
+        producto = self.txtchooseProductQ1.get()
+        if estado=="" or producto == "":
+            messagebox.showerror("Error", "No se eligieron producto o estado")
+            return 
         newWindow = Toplevel(self.root)
         Frame.__init__(self)
         newWindow.geometry('600x400+200+100')
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1)
+        res = base_queries.q1_hallar_tienda(estado, producto)
+        res = pd.DataFrame(res, columns=['Tiendas con el producto'])
+        pt = Table(f, dataframe=res,showtoolbar=True, showstatusbar=True)
+        pt.show()
 
-        #from base_queries import lugares_guardados
-        #resultado = lugares_guardados(supertemporalUser)
-        
-        #res = pd.DataFrame(resultado, columns= ['Nombre Lugar', 'Coordenadas'])
-        #pt = Table(f, dataframe=res,showtoolbar=True, showstatusbar=True)
-        #pt.show()
+    def q2Consulta(self): 
+        global supertemporalUser
+        if supertemporalUser==None: 
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+            return
+        estado = self.txtchooseStateQ2.get()
+        tienda = self.txtchooseStoreQ2.get()
+        if estado=="" or tienda == "":
+            messagebox.showerror("Error", "No se eligieron tienda o estado")
+            return 
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        res = base_queries.q2_incumplimientos(estado, tienda)
+        res = pd.DataFrame(res, columns=['Productos con Incumplimiento'])
+        pt = Table(f, dataframe=res,showtoolbar=True, showstatusbar=True)
+        pt.show()
 
+    def q3Consulta(self): 
+        global supertemporalUser
+        if supertemporalUser==None: 
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+            return
+        estado = self.txtchooseStateQ3.get()
+        producto = self.txtchooseProductQ3.get()
+        if estado=="" or producto == "":
+            messagebox.showerror("Error", "No se eligieron producto o estado")
+            return 
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        res = base_queries.q3_alternativas(estado, producto)
+        res = pd.DataFrame(res, columns=['Tiendas con el producto'])
+        pt = Table(f, dataframe=res,showtoolbar=True, showstatusbar=True)
+        pt.show()
+
+    def q4Consulta(self): 
+        global supertemporalUser
+        if supertemporalUser==None: 
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+            return
+        estado = self.txtchooseStateQ4.get()
+        tienda = self.txtchooseStateQ4.get()
+        producto = self.txtchooseProductQ4.get()
+        if estado=="" or tienda == "" or producto == "":
+            messagebox.showerror("Error", "No se eligieron producto, tienda o estado")
+            return 
+        base_queries.q4_comprar(supertemporalUser, producto, tienda)
+        return 
+
+    def q5Consulta(self): 
+        global supertemporalUser
+        if supertemporalUser==None: 
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+            return
+
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        res = base_queries.q5_registros(supertemporalUser)
+        pt = Table(f, dataframe=res,showtoolbar=True, showstatusbar=True)
+        pt.show()
+
+    def q7Consulta(self): 
+        global supertemporalUser
+        if supertemporalUser==None: 
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+            return
+        producto = self.txtchooseProductQ7.get()
+        if producto=="" : 
+            messagebox.showerror("Error", "No se eligio producto")
+            return 
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        res = base_queries.q7_recomendar(producto)
+        print(res)
+        res = pd.DataFrame(res)
+        pt = Table(f, dataframe=res,showtoolbar=True, showstatusbar=True)
+        pt.show()
+
+
+    def q8Consulta(self): 
+        global supertemporalUser
+        if supertemporalUser==None: 
+            self.root.switch_frame(Login_window)
+            messagebox.showerror("Error", "No hay usuario registrado")
+            return
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1)
+        res = base_queries.q8_incumpliminetos()
+        pt = Table(f, dataframe=res,showtoolbar=True, showstatusbar=True)
+        pt.show()
 
 class SampleApp(Tk):
     def __init__(self):
