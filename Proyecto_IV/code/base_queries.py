@@ -140,20 +140,18 @@ def q7_recomendar(producto:str):
 
     productos_lista = []
 
+    query = "MATCH (Producto {nombre:'" + producto + "'}) <-[COMPRO]- (u:Usuario) RETURN u"
+    results, meta = db.cypher_query(query)
+    usuarios = [Usuario.inflate(row[0]).nombre for row in results]
+
     for cat in cats:
-
-        query = "MATCH (Producto {nombre:'" + producto + "'}) <-[COMPRO]- (u:Usuario) RETURN u"
-        results, meta = db.cypher_query(query)
-        usuarios = [Usuario.inflate(row[0]).nombre for row in results]
-
         for user in usuarios:
             query = "MATCH (u:Usuario{nombre:'"+user+"'}) -[COMPRO]->(p:Producto) -[ES_CATEGORIA]-> (Categoria{nombre:'" + cat+"'}) RETURN p"
             results, meta = db.cypher_query(query) 
             productos = [Producto.inflate(row[0]).nombre for row in results]
-            productos_lista += productos
-
-        productos_lista = list(set(productos_lista))
-
+            productos_lista = productos_lista + productos
+    
+    productos_lista = list(set(productos_lista))
     return productos_lista
 #---------------------------------- Query 8 ----------------------------------
 def q8_incumpliminetos():

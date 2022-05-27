@@ -44,7 +44,6 @@ def carga_de_datos():
 
     clear_neo4j_database(db)
     df = pd.read_csv('Tiendas_limpio.csv')
-    df = df.head(1000)
     #Estados
     for i in df.ENTIDAD.unique():
         _ = Estado(estado = i).save()
