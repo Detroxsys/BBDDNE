@@ -1,0 +1,15 @@
+nombre,precio_unit,descripcion,categoria,cantidad_disp
+Harina,675,Costal de 44 kg,masa,30
+Azucar,840,Costal de 50 kg,relleno,4
+Mantequillo Caja,405,10 piezas por caja,masa,200
+Jamón,44,Paquete de 1 kg,relleno,60
+Caja de Queso Amarillo,480,Caja de queso Amarillo Castell,relleno,4
+Caja de Zarzamora,200,6 mangas en una caja,relleno,3
+Caja de Fresa,200,6 mangas en una caja,relleno,5
+Caja de Manzana,200,6 mangas en una caja,relleno,4
+Queso Crema,25,Paquete de barra,relleno,5
+Salchicha,70,2kg de salchicha en paquete,relleno,15
+Latas de Rajas,100,1.5 kg,relleno,2
+Queso manchego,60,0.5 kg,relleno,1
+Queso de hebra,500,5 kg,relleno,1
+Chorizo,400,1 kg,relleno,20

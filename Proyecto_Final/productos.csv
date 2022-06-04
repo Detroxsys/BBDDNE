@@ -1,0 +1,36 @@
+nombre,precio_unit,descripcion,categoria,cantidad_disp
+Volovan Jamon,15,"Hojaldre 20x10 cm, relleno con jamon, queso amarillo y salsa chipotle.",volovan salado,10
+Volovan Pollo,15,"Hojaldre 20x10 cm,relleno con pollo, tomate, cebolal y chile verde en forma de picadillo.",volovan salado,10
+Volovan Choriqueso,15,"Hojaldre 20x10 cm, relleno con chorizo, queso de hebra, chile verde. ",volovan salado,10
+Volovan Tres quesos,15,"Hojaldre 20x10 cm, relleno con queso manchego, queso de hebra, queso amarillo.",volovan salado,10
+Volovan Champiñones,15,"Hojaldre 20x10 cm, relleno con champiñones, queso de hebra, queso manchego y salsa habanero.",volovan salado,10
+Volovan Hawaiano,15,"Hojaldre 15x15 cm, relleno con jamon, piña, queso amarillo y salsa chipotle. ",volovan salado,10
+Volovan Atún,15,"Hojaldre 20x10 cm, relleno con atún, tomate, cebolla y chile verde. ",volovan salado,10
+Volovan Pastor,18,"Hojaldre 20x10 cm, relleno con pastor, queso manchego y queso mozzarella. ",volovan salado,10
+Volovan Nutella,15,"Hojaldre 20x10 cm, relleno con nutella y queso crema.",volovan dulce,10
+Volovan Zarzamora,15,"Hojaldre 20x10 cm, relleno con mermelada de zarzamora y queso crema.",volovan dulce,10
+Volovan Piña,15,"Hojaldre 20x10 cm, relleno con mermelada de piña",volovan dulce,10
+Volovan Manzana,15,"Hojaldre 20x10 cm, relleno con mermelada de manzana",volovan dulce,10
+Volovan Cajeta,15,"Hojaldre 20x10 cm, relleno con cajeta",volovan dulce,10
+Volovan Manjar,15,"Hojaldre 20x10 cm, relleno de dulce de vainilla con leche",volovan dulce,10
+Volovan Fresa,15,"Hojaldre 20x10 cm , relleno de mermelada de fresa y queso crema.",volovan dulce,10
+Volovan Piñacoco,15,"Hojaldre 20x10 cm, relleno mermelada de piña natural y coco",volvoan dulce,10
+Princesa,20,"Hojaldre 20x15 cm, relleno de salchicha, queso de hebra, queso amarillo, salsa chipotle y piña. ",especial,5
+MegaVolo,20,"Hojaldre 20x20 cm, relleno de picadillo, jamon, queso amarillo, queso de hebra y salsa habanero. ",especial,5
+Reyna,40,"Hojaldre 40x20 cm, relleno de pastor, salchicha, queso de hebra, queso amarillo, salsa chipotle y piña. ",especial,5
+MisterVolo,50,"Hojaldre 50x50 cm, relleno con picadillo, jamon, queso amarillo, salchicha, queso de hebra, salsa habanero.",especial,5
+MiniVolovan Jamon,8,"Hojaldre 10x5 cm, relleno con jamon, queso amarillo y salsa chipotle.",volovan salado,0
+MiniVolovan Pollo,8,"Hojaldre 10x5 cm, relleno con pollo, tomate, cebolal y chile verde en forma de picadillo.",volovan salado,0
+MiniVolovan Choriqueso,8,"Hojaldre 10x5 cm, relleno con chorizo, queso de hebra, chile verde. ",volovan salado,0
+MiniVolovan Tres quesos,8,"Hojaldre 10x5 cm, relleno con queso manchego, queso de hebra, queso amarillo.",volovan salado,0
+MiniVolovan Champiñones,8,"Hojaldre 10x5 cm, relleno con champiñones, queso de hebra, queso manchego y salsa habanero.",volovan salado,0
+MiniVolovan Hawaiano,8,"Hojaldre 10x5 cm, relleno con jamon, piña, queso amarillo y salsa chipotle. ",volovan salado,0
+MiniVolovan Atún,8,"Hojaldre 10x5 cm, relleno con atún, tomate, cebolla y chile verde. ",volovan salado,0
+MiniVolovan Nutella,8,"Hojaldre 10x5 cm, relleno con nutella y queso crema.",volovan dulce,0
+MiniVolovan Zarzamora,8,"Hojaldre 10x5 cm, relleno con mermelada de zarzamora y queso crema.",volovan dulce,0
+MiniVolovan Piña,8,"Hojaldre 10x5 cm, relleno con mermelada de piña",volovan dulce,0
+MiniVolovan Manzana,8,"Hojaldre 10x5 cm, relleno con mermelada de manzana",volovan dulce,0
+MiniVolovan Cajeta,8,"Hojaldre 10x5 cm, relleno con cajeta",volovan dulce,0
+MiniVolovan Manjar,8,"Hojaldre 10x5 cm, relleno de dulce de vainilla con leche",volovan dulce,0
+MiniVolovan Fresa,8,"Hojaldre 10x5 cm, relleno de mermelada de fresa y queso crema.",volovan dulce,0
+MiniVolovan Piñacoco,8,"Hojaldre 10x5 cm, relleno mermelada de piña natural y coco",volvoan dulce,0
