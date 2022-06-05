@@ -7,7 +7,6 @@ import numpy as np
 from pandastable import Table, TableModel 
 from datetime import datetime, timedelta
 
-
 #Usuario logueado en cache
 superUser=None
 isAdmin = False

@@ -1,8 +1,8 @@
-nombre,precio_unit,descripcion,categoria,cantidad_disp
+﻿nombre,precio_unit,descripcion,categoria,cantidad_disp
 Harina,675,Costal de 44 kg,masa,30
 Azucar,840,Costal de 50 kg,relleno,4
 Mantequillo Caja,405,10 piezas por caja,masa,200
-Jam�n,44,Paquete de 1 kg,relleno,60
+Jamón,44,Paquete de 1 kg,relleno,60
 Caja de Queso Amarillo,480,Caja de queso Amarillo Castell,relleno,4
 Caja de Zarzamora,200,6 mangas en una caja,relleno,3
 Caja de Fresa,200,6 mangas en una caja,relleno,5
