@@ -38,14 +38,17 @@ supertemporalUser=None
 class Login_window(Frame):
     def __init__(self, root):
         self.root=root
+        
         self.root.title("Login")
         self.root.geometry("1550x800+0+0")
         bg = Image.open("img/background.jpg")
+        
         bg = bg.resize( (1550, 800), Image.ANTIALIAS)
         self.bg = ImageTk.PhotoImage(bg)
         lbl_bg  = Label(self.root, image= self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
+        
         Frame.__init__(self, root)
         frame = Frame(self.root, bg="black")
         frame.place(x=300, y=170, width= 340, height=400)
