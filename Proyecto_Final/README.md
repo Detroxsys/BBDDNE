@@ -1,7 +1,13 @@
 # Proyecto Final de la materia
 
 ## Bibliotecas:
+**Drivers para bases de datos**
 * `pip install pymongo`
+* `pip install redis`
+
+**Interfaz**
+
+**Otros**
 
 
 ## Prerequisitos:
