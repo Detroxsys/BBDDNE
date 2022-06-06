@@ -7,8 +7,10 @@
 * `pip install mysql-connector-python`
 
 **Interfaz**
+* `pip install tkinter`
 
 **Otros**
+* `pip install pandas`
 
 ## CARACTERÍSTICAS DEL PROGRAMA:
 Aplicación que lleva la contabilidad de la panadería *El Volován*.
