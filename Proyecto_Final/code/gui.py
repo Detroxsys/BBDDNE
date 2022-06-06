@@ -11,6 +11,9 @@ import numpy as np
 from pandastable import Table, TableModel 
 from datetime import datetime, timedelta
 
+#Conexiones a las bases de datos
+import mysql_queries as db_mysql
+
 #Usuario logueado en cache
 superUser=None
 isAdmin = False
@@ -72,7 +75,7 @@ class Login_window(Frame):
         self.root.switch_frame(Register_window)
 
     def login(self): 
-        if self.txtuser.get()=="":
+        if self.txtuser.get()=="" or self.txtpassword.get()=="":
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
         else: 
             usernameVal = self.txtuser.get()
