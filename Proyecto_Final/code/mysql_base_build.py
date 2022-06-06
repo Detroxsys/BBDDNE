@@ -91,10 +91,10 @@ mycursor.execute("""
                     )
                 """)
 
-mycursor.execute("SHOW TABLES")
+#mycursor.execute("SHOW TABLES")
 
-for x in mycursor:
-  print(x)
+#for x in mycursor:
+#  print(x)
 
 
 def nuevo_producto(nombre: str, precio_unit: float, descripcion: str, categoria: str, cantidad_disp: int):    
@@ -123,5 +123,6 @@ for index, row in df_productos.iterrows():
         nuevo_producto(row[0], row[1], row[2], row[3], row[4])
 
 
+print("MYSQL Base Cargada")
 
 

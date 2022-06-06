@@ -694,6 +694,18 @@ class MakePedido_window(Frame):
         msg = Label(frame3, text="Hora     Minuto",font=("sans-serif", 12, "bold"),fg="teal", bg = "white")
         msg.place(x=100, y=300)
 
+        phonenumber=Label(frame3, text="Télefono", font =("sans-serif", 13, "bold"), fg="teal", bg="white")
+        phonenumber.place(x=100, y=340)
+
+        self.txtphonenumber = ttk.Entry(frame3, font =("sans-serif", 13, "bold"))
+        self.txtphonenumber.place(x=100, y=360, width=100)
+
+        cliente=Label(frame3, text="Nombre", font =("sans-serif", 13, "bold"), fg="teal", bg="white")
+        cliente.place(x=100, y=390)
+
+        self.txtcliente = ttk.Entry(frame3, font =("sans-serif", 13, "bold"))
+        self.txtcliente.place(x=100, y=410, width=100)
+
     def aggToOrder(self): 
         producto = self.txtnombre.get()
         cantidad = self.txtcantidad.get()
