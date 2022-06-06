@@ -1,4 +1,12 @@
+from numpy import product
 import mysql_queries as db_mysql
 
-print(db_mysql.is_admin("LAMY0004069N5"))
-#print(db_mysql.get_all_productos())
+products = db_mysql.get_all_productos()
+products_names = products['nombre'].to_list()
+products_redis = products[['nombre', 'cantidad_disp']].copy()
+products_price = products.set_index('nombre')
+products_price = products_price['precio_unit'].to_dict()
+
+print(products_names)
+print(products_redis)
+print(products_price)

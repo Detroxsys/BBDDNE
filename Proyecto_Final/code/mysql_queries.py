@@ -78,7 +78,17 @@ def is_admin ( rfc: str):
         return True 
     return False 
 
-
+def get_password( rfc: str): 
+    mycursor.execute(
+        """
+            SELECT contraseña FROM trabajadores
+            WHERE rfc = %s
+            LIMIT 1
+        """, 
+        [rfc]
+    )
+    myresult = mycursor.fetchone() 
+    return myresult[0]
 
 def nuevo_usuario( rfc: str, es_admin: int, nombre: str, apellidos: str, contraseña: str):
     sql = "INSERT INTO trabajadores (rfc, es_admin, nombre, apellidos, contraseña) VALUES (%s, %s, %s, %s, %s)"

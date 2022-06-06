@@ -15,8 +15,14 @@ from datetime import datetime, timedelta
 import mysql_queries as db_mysql
 
 #Usuario logueado en cache
-superUser=None
+supertemporalUser=None
 isAdmin = False
+
+products = db_mysql.get_all_productos()
+products_names = products['nombre'].to_list()
+products_redis = products[['nombre', 'cantidad_disp']].copy()
+products_price = products.set_index('nombre')
+products_price = products_price['precio_unit'].to_dict()
 
 #INTERFAZ GRAFICA 
 
@@ -79,16 +85,26 @@ class Login_window(Frame):
             messagebox.showerror("Error", "Todos los campos deben estar llenos")
         else: 
             usernameVal = self.txtuser.get()
-            existe_user = True
+            password    = self.txtpassword.get()
+            existe_user = db_mysql.existe_usuario(usernameVal)
             if existe_user:
-                global supertemporalUser 
-                supertemporalUser=usernameVal
-                messagebox.showinfo("Success", f"Bienvenido {supertemporalUser}")
-                self.root.switch_frame(RegisterBox_window)
+                if password == db_mysql.get_password(usernameVal): 
+                    global supertemporalUser 
+                    global isAdmin
+                    supertemporalUser=usernameVal
+                    if db_mysql.is_admin(usernameVal):
+                        isAdmin = True
+                        self.root.switch_frame(Admin_window)
+                    else: 
+                        self.root.switch_frame(RegisterBox_window)
+                else: 
+                    messagebox.showerror("Error", "Contraseña incorrecta")
             else: 
-                self.txtuser.delete(0,END)
-                self.txtpassword.delete(0, END)
-                messagebox.showerror("Error", "Usuario no existe,debe registrarse")
+                messagebox.showerror("Error", "Usuario no existe, debe registrarse")
+
+            self.txtuser.delete(0,END)
+            self.txtpassword.delete(0, END)
+           
 
 #Registrar Nuevo Usuario
 class Register_window(Frame):
@@ -154,9 +170,29 @@ class Register_window(Frame):
         registerbtn.place(x=560, y=400, width=120, height=35)
 
     def register_user(self): 
-        self.root.switch_frame(Admin_window)
-        pass
+        nombre = self.txtname.get()
+        apellidos = self.txtlastname.get()
+        rfc       = self.txtuser.get() 
+        password  = self.txtpassword.get()
+        if nombre=="" or apellidos=="" or rfc=="" or password=="": 
+            messagebox.showerror("Error", "Todos los campos deben estar llenos")
+        else: 
+            existe_user = db_mysql.existe_usuario(rfc)
+            if not existe_user:
+                db_mysql.nuevo_usuario(rfc, 0, nombre, apellidos, password)
+                global supertemporalUser
+                global isAdmin
+                supertemporalUser=rfc
+                isAdmin = False
+                self.root.switch_frame(RegisterBox_window)
+            else: 
+                messagebox.showerror("Error", "Usuario ya existe, debe ingresar")
 
+            self.txtname.delete(0,END)
+            self.txtlastname.delete(0,END)
+            self.txtuser.delete(0,END)
+            self.txtpassword.delete(0, END)
+        
     def login(self): 
         self.root.switch_frame(Login_window)
 
@@ -233,6 +269,10 @@ class Admin_window(Frame):
         pass
 
     def exit(self): 
+        global supertemporalUser
+        global isAdmin
+        isAdmin = False 
+        supertemporalUser = None
         self.root.switch_frame(Login_window)
 
 
@@ -310,6 +350,10 @@ class RegisterBox_window(Frame):
         pass
 
     def exit(self): 
+        global supertemporalUser
+        global isAdmin
+        isAdmin = False 
+        supertemporalUser = None
         self.root.switch_frame(Login_window)
 
 
@@ -379,7 +423,26 @@ class New_Product_window(Frame):
         self.root.switch_frame(Admin_window)
 
     def createProduct(self):
-        pass 
+        nombre = self.txtname.get()
+        descripcion= self.txtdescription.get()
+        categoria       = self.txtcategoria.get() 
+        precioUnit  = self.txtprecioUnitario.get()
+        if nombre=="" or descripcion=="" or categoria=="" or precioUnit=="": 
+            messagebox.showerror("Error", "Todos los campos deben estar llenos")
+        else: 
+            precioUnit = float(precioUnit)
+            existe_producto = db_mysql.existe_producto(nombre)
+            if not existe_producto:
+                db_mysql.nuevo_producto(nombre, precioUnit, descripcion, categoria, 0)
+                messagebox.showinfo("Éxito", "Producto guardado con éxito")
+            else: 
+                messagebox.showerror("Error", "Producto ya existe")
+
+            self.txtname.delete(0,END)
+            self.txtdescription.delete(0,END)
+            self.txtcategoria.delete(0,END)
+            self.txtprecioUnitario.delete(0, END)
+
 
 #Agregando producción
 class Production_window(Frame):
@@ -416,7 +479,7 @@ class Production_window(Frame):
         nombre=Label(frame, text="Nombre", font =("sans-serif", 20, "bold"), fg="teal", bg="white")
         nombre.place(x=100, y=240)
 
-        self.txtnombre = ttk.Combobox(frame, font =("sans-serif", 20, "bold"), state="readonly",values=[])
+        self.txtnombre = ttk.Combobox(frame, font =("sans-serif", 20, "bold"), state="readonly",values=products_names)
         self.txtnombre.place(x=300, y=240, width=250)
 
         cantidad=Label(frame, text="Cantidad", font =("sans-serif", 20, "bold"), fg="teal", bg="white")
@@ -474,7 +537,7 @@ class MakeOrder_window(Frame):
         nombre=Label(self.frame, text="Nombre", font =("sans-serif", 13, "bold"), fg="teal", bg="white")
         nombre.place(x=220, y=130)
 
-        self.txtnombre = ttk.Combobox(self.frame, font =("sans-serif", 13, "bold"), state="readonly",values=["Jamon", "Pollo"])
+        self.txtnombre = ttk.Combobox(self.frame, font =("sans-serif", 13, "bold"), state="readonly",values=products_names)
         self.txtnombre.place(x=220, y=150, width=100)
 
         cantidad=Label(self.frame, text="Cantidad", font =("sans-serif", 13, "bold"), fg="teal", bg="white")
@@ -565,7 +628,7 @@ class MakePedido_window(Frame):
         nombre=Label(self.frame, text="Nombre", font =("sans-serif", 13, "bold"), fg="teal", bg="white")
         nombre.place(x=220, y=130)
 
-        self.txtnombre = ttk.Combobox(self.frame, font =("sans-serif", 13, "bold"), state="readonly",values=["Jamon", "Pollo"])
+        self.txtnombre = ttk.Combobox(self.frame, font =("sans-serif", 13, "bold"), state="readonly",values=products_names)
         self.txtnombre.place(x=220, y=150, width=100)
 
         cantidad=Label(self.frame, text="Cantidad", font =("sans-serif", 13, "bold"), fg="teal", bg="white")
