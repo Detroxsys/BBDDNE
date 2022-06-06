@@ -278,10 +278,13 @@ class Admin_window(Frame):
 
         products = temp_products
         products_names = temp_products_names
-        products_names = temp_products_redids 
-            
+        products_redis = temp_products_redis
+        products_price = temp_products_price
 
-        pass
+        db_redis.carga_productos(products_redis)
+        messagebox.showinfo("Día Iniciado", "Se han cargado los productos disponibles")
+
+            
 
     def gotoEndDay(self): 
         pass
@@ -353,16 +356,44 @@ class RegisterBox_window(Frame):
         self.root.switch_frame(MakePedido_window)
     
     def gotoIngresos(self): 
-        pass
+        global supertemporalUser
+        concepto = simpledialog.askstring("Input", "¿Concepto de Ingreso?",parent=self.root)
+        ingresado  = simpledialog.askfloat("Input", "¿Cuánto fue el ingreso?" , parent=self.root)
+        if concepto is None or ingresado is None: 
+            return 
+        db_redis.ingresosExtra(ingresado, concepto, supertemporalUser)
+        messagebox.showinfo("Ingreso", "Ingreso Agregado con éxito")
 
     def gotoGastos(self): 
-        pass
+        global supertemporalUser
+        concepto = simpledialog.askstring("Input", "¿Concepto de Gasto?",parent=self.root)
+        gasto  = simpledialog.askfloat("Input", "¿Cuánto fue el ingreso?" , parent=self.root)
+        if concepto is None or ingresado is None: 
+            return 
+        db_redis.gastosExtra(gasto, concepto, supertemporalUser)
+        messagebox.showinfo("Gasto", "Gasto Agregado con éxito")
 
     def df_checkIngresos(self): 
-        pass
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1) 
+        df = db_redis.dfIngresosExtra()
+        pt = Table(f, dataframe=df,showtoolbar=True, showstatusbar=True)
+        pt.show()
 
     def df_checkGastos(self): 
-        pass
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1) 
+        df = db_redis.dfGastosExtra()
+        pt = Table(f, dataframe=df,showtoolbar=True, showstatusbar=True)
+        pt.show()
 
     def gotoGetPedidos(self): 
         newWindow = Toplevel(self.root)
@@ -371,6 +402,7 @@ class RegisterBox_window(Frame):
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1) 
+        #De momento el día esta fijo para que sirva la consulta (cambiar después)
         otro_dia_1 = datetime.strptime('2022-06-08 12:45:00', "%Y-%m-%d %H:%M:%S")
         df = db_mongo.consultar_entregas(otro_dia_1)
         pt = Table(f, dataframe=df,showtoolbar=True, showstatusbar=True)
@@ -525,7 +557,13 @@ class Production_window(Frame):
         aggProdbtn.place(x=330, y=400, width=140, height=35)
 
     def agregarProduccion(self): 
-        pass
+        producto = self.txtnombre.get()
+        cantidad = self.txtcantidad.get()
+        if producto=="" or cantidad=="": 
+            return
+        cantidad = int(cantidad)
+        db_redis.producidos(producto, cantidad)
+        messagebox.showinfo("Producción", "Productos agregados")
         
 
     def exit(self): 
@@ -617,6 +655,8 @@ class MakeOrder_window(Frame):
             return 
         
         cantidad = int(cantidad)
+        db_redis.comprados(producto, cantidad)
+
         subtotal = float(products_price[producto]*cantidad)
         self.Total += subtotal
         self.ListaCompra.append((producto, cantidad, subtotal))
