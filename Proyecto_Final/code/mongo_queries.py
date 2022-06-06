@@ -99,6 +99,7 @@ def pago_anticipos_por_dia(fecha_apertura:datetime = datetime.today()):
     res = []                     
     for t in total:
         res.append(t)
+    print(res)
     return res[0]['total_anticipos_dia']*0.5
 
 

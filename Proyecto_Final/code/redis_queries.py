@@ -39,7 +39,7 @@ def gastosExtra(gastado, concepto, user):
 
 def gastosExtraTotales():
     gastos= db.lrange('gastoExtra:Gasto:', 0, -1)
-    return sum(map(int, gastos))
+    return sum(map(float, gastos))
 
 def ingresosExtra(ingresado, concepto, user):
     hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -55,7 +55,7 @@ def ingresosExtra(ingresado, concepto, user):
 
 def ingresosExtraTotales():
     gastos= db.lrange('ingresoExtra:Ingreso:', 0, -1)
-    return sum(map(int, gastos))
+    return sum(map(float, gastos))
 
 def dfIngresosExtra():
         tiempos=[]

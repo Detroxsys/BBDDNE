@@ -1,4 +1,5 @@
 #Interfaz Grafica 
+from filecmp import DEFAULT_IGNORES
 from tkinter import* #pip install tk 
 from tkinter import ttk
 from PIL import Image, ImageTk  #pip install pillow
@@ -255,7 +256,38 @@ class Admin_window(Frame):
         self.root.switch_frame(RegisterBox_window)
 
     def gotoMakeReport(self):
+        gastos_extras   = db_redis.gastosExtraTotales()
         ingresos_tienda = db_mongo.venta_ordenes_por_dia()
+        ingresos_extras = db_redis.ingresosExtraTotales()
+        ingresos_anticipos = db_mongo.pago_anticipos_por_dia()
+        ingresos_entregas  = db_mongo.pago_entregas_por_dia()
+        ingresos_total     = ingresos_tienda + ingresos_extras + ingresos_anticipos + ingresos_entregas 
+        ganancias_virtual  = ingresos_total - ingresos_extras 
+        ganancias_real     = simpledialog.askfloat("Input", "¿Cuánto fue el dinero en caja?" , parent=self.root)
+        perdidas_prop      = ganancias_real*100/ganancias_virtual
+        db_mysql.guardar_reporte(date.today(), gastos_extras, 
+                                    ingresos_extras+ingresos_anticipos+ingresos_entregas,ingresos_tienda, 
+                                    ingresos_total, ganancias_virtual, ganancias_real, perdidas_prop)
+        report = {
+            'gastos_extras': gastos_extras, 
+            'ingresos_tienda': ingresos_tienda, 
+            'ingresos_extras': ingresos_extras,
+            'ingresos_anticipos': ingresos_anticipos,
+            'ingresos_entregas': ingresos_entregas,
+            'ganancias_virtual': ganancias_virtual, 
+            'ganancias_real': ganancias_real, 
+            'perdidas (%)': perdidas_prop,
+        }
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1) 
+        df = pd.DataFrame(report)
+        pt = Table(f, dataframe=df,showtoolbar=True, showstatusbar=True)
+        pt.show()
+
         return
 
     def gotoNewProduct(self): 
@@ -284,10 +316,27 @@ class Admin_window(Frame):
         db_redis.carga_productos(products_redis)
         messagebox.showinfo("Día Iniciado", "Se han cargado los productos disponibles")
 
+
             
 
     def gotoEndDay(self): 
-        pass
+        global products_names
+        for producto in products_names: 
+            cant = db_redis.get_sobrantes(producto)
+            db_mysql.update_cant_producto(producto, cant)
+        df_ing = db_redis.dfGastosExtra()
+        df_gas = db_redis.dfIngresosExtra()
+        for index, row in df_ing.iterrows():
+            try: db_mysql.guardar_gasto(row[0], row[1], row[2], row[3])
+            except: continue
+
+        for index, row in df_gas.iterrows():
+            try : db_mysql.guardar_ingreso(row[0], row[1], row[2], row[3])
+            except: continue
+
+        #Se elimina todo el día en la base de datos (de momento se dejan para que las consultas muestren datos) 
+        #db_redis.db.flushdb()
+        messagebox.showinfo("Finalizar", "Se guardaron los datos de hoy y los productos sobrantes")
 
     def exit(self): 
         global supertemporalUser
@@ -368,7 +417,7 @@ class RegisterBox_window(Frame):
         global supertemporalUser
         concepto = simpledialog.askstring("Input", "¿Concepto de Gasto?",parent=self.root)
         gasto  = simpledialog.askfloat("Input", "¿Cuánto fue el ingreso?" , parent=self.root)
-        if concepto is None or ingresado is None: 
+        if concepto is None or gasto is None: 
             return 
         db_redis.gastosExtra(gasto, concepto, supertemporalUser)
         messagebox.showinfo("Gasto", "Gasto Agregado con éxito")
