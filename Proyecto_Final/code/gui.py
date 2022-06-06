@@ -14,6 +14,7 @@ from datetime import datetime,date,  time, timedelta
 #Conexiones a las bases de datos
 import mysql_queries as db_mysql
 import mongo_queries as db_mongo
+import redis_queries as db_redis
 #Usuario logueado en cache
 supertemporalUser=None
 isAdmin = False
@@ -255,8 +256,7 @@ class Admin_window(Frame):
 
     def gotoMakeReport(self):
         ingresos_tienda = db_mongo.venta_ordenes_por_dia()
-         
-        pass
+        return
 
     def gotoNewProduct(self): 
         self.root.switch_frame(New_Product_window)
@@ -265,6 +265,22 @@ class Admin_window(Frame):
         self.root.switch_frame(Production_window)
 
     def gotoInitDay(self): 
+        global products
+        global products_names
+        global products_redis 
+        global products_price
+
+        temp_products = db_mysql.get_all_productos()
+        temp_products_names = temp_products['nombre'].to_list()
+        temp_products_redis = temp_products[['nombre', 'cantidad_disp']].copy()
+        temp_products_price = temp_products.set_index('nombre')
+        temp_products_price = temp_products_price['precio_unit'].to_dict()
+
+        products = temp_products
+        products_names = temp_products_names
+        products_names = temp_products_redids 
+            
+
         pass
 
     def gotoEndDay(self): 
