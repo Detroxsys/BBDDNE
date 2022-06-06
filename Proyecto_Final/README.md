@@ -12,7 +12,6 @@
 
 ## CARACTERÍSTICAS DEL PROGRAMA:
 Aplicación que lleva la contabilidad de la panadería *El Volován*.
-- 
 
 ## Prerequisitos:
 1. Crear contenedor con MySql: `docker run --name user_mysql_1 --env="MYSQL_ROOT_PASSWORD=password" -p 3306:3306 -d mysql:latest`
