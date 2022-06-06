@@ -758,10 +758,16 @@ class MakePedido_window(Frame):
         if phone =="" or nombre =="": 
             return
         
-        datepedido           =self.cal.get_date()
+        dia, mes, anio   =self.cal.get_date().split('/')
         int_hour       = int(self.hour_sb.get())
         int_minutes    = int(self.min_sb.get())  
-        pass
+        dia_entrega = datetime(int('20'+anio), int(mes), int(dia), hour=int_hour, minute=int_minutes)
+        print(dia_entrega)
+        db_mongo.nuevo_pedido(dia_entrega, nombre, phone, self.ListaCompra)
+        messagebox.showinfo("Éxito", "Pedido registrado")
+        self.root.switch_frame(RegisterBox_window)
+
+
     
     def exit(self): 
         self.root.switch_frame(RegisterBox_window)

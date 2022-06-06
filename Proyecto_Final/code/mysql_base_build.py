@@ -113,10 +113,10 @@ def nuevo_usuario( rfc: str, es_admin: int, nombre: str, apellidos: str, contras
     return 
 
 nuevo_usuario("LAMY0004069N5", 1, "Yeudiel", "Lara Moreno", "12345")
-nuevo_usuario('HSDP02837162', 0 , 'Samuel', "2345")
-nuevo_usuario('MMCL10294873', 0, 'Mariana', "dfs4")
-nuevo_usuario('HPPS125982733',0, 'Pedro', "13ajsd")
-nuevo_usuario('MTYSJ12476412', 0, 'Toño', "123smf")
+nuevo_usuario('HSDP02837162', 0 , 'Samuel', 'Diaz Hernandez', "2345")
+nuevo_usuario('MMCL10294873', 0, 'Mariana','Ramirez Castro', "dfs4")
+nuevo_usuario('HPPS125982733',0, 'Pedro','Fernandez Perez', "13ajsd")
+nuevo_usuario('MTYSJ12476412', 0, 'Toño', 'Cordova Escalante',"123smf")
 df_productos = pd.read_csv('data\productos.csv')
 #Cargamos nuestros datos
 for index, row in df_productos.iterrows():
