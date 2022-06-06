@@ -16,6 +16,7 @@ Aplicación que lleva la contabilidad de la panadería *El Volován*.
 
 **Otros**
 * `pip install pandas`
+* * `pip install numpy`
 
 ## Prerequisitos:
 1. Instalar Python y bibliotecas requeridas.
