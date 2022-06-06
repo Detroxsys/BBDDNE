@@ -253,7 +253,9 @@ class Admin_window(Frame):
     def gotoRegisterBox(self): 
         self.root.switch_frame(RegisterBox_window)
 
-    def gotoMakeReport(self): 
+    def gotoMakeReport(self):
+        ingresos_tienda = db_mongo.venta_ordenes_por_dia()
+         
         pass
 
     def gotoNewProduct(self): 
@@ -771,20 +773,6 @@ class MakePedido_window(Frame):
     
     def exit(self): 
         self.root.switch_frame(RegisterBox_window)
-
-class SampleApp(Tk):
-    def __init__(self):
-        Tk.__init__(self)
-        self._frame = None
-        self.switch_frame(MakeOrder_window)
-
-    def switch_frame(self, frame_class):
-        """Destroys current frame and replaces it with a new one."""
-        new_frame = frame_class(self)
-        if self._frame is not None:
-            self._frame.destroy()
-        self._frame = new_frame
-        self._frame.pack()
 
 class SampleApp(Tk):
     def __init__(self):

@@ -52,7 +52,7 @@ def nuevo_pedido(fecha_entrega:datetime, nombre_cliente:str, telefono:str, compr
     return pedido_id
 
 # 1.Total de venta de órdenes por día:
-def venta_ordenes_por_dia(fecha:datetime): 
+def venta_ordenes_por_dia(fecha:datetime= datetime.now()): 
     fecha = fecha.strftime('%Y-%m-%d')
     total = db.Ordenes.aggregate([{ "$match": { "fecha": fecha}},
                                   { "$group": { "_id": "$fecha", "total_dia" : {'$sum': '$total_orden'} }},
