@@ -60,7 +60,9 @@ def venta_ordenes_por_dia(fecha:datetime= datetime.now()):
     res = []                     
     for t in total:
         res.append(t)
-    return res[0]
+    if res== []:
+        return 0
+    return res[0]["total_dia"]
 
 # 2. Consultar pedidos por fecha de entrega
 def consultar_entregas(fecha_entrega:datetime = datetime.today(), format:bool=True):
@@ -99,7 +101,8 @@ def pago_anticipos_por_dia(fecha_apertura:datetime = datetime.today()):
     res = []                     
     for t in total:
         res.append(t)
-    print(res)
+    if res == []: 
+        return 0
     return res[0]['total_anticipos_dia']*0.5
 
 
@@ -112,6 +115,9 @@ def pago_entregas_por_dia(fecha_entrega:datetime = datetime.today()):
     res = []                     
     for t in total:
         res.append(t)
+
+    if res == []: 
+        return 0
     return res[0]['total_pago_entregas']*0.5
 
 

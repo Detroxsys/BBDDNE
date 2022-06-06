@@ -256,18 +256,19 @@ class Admin_window(Frame):
         self.root.switch_frame(RegisterBox_window)
 
     def gotoMakeReport(self):
-        gastos_extras   = db_redis.gastosExtraTotales()
-        ingresos_tienda = db_mongo.venta_ordenes_por_dia()
-        ingresos_extras = db_redis.ingresosExtraTotales()
-        ingresos_anticipos = db_mongo.pago_anticipos_por_dia()
-        ingresos_entregas  = db_mongo.pago_entregas_por_dia()
+        gastos_extras   = float(db_redis.gastosExtraTotales())
+        ingresos_tienda = float(db_mongo.venta_ordenes_por_dia())
+        ingresos_extras = float(db_redis.ingresosExtraTotales())
+        ingresos_anticipos = float(db_mongo.pago_anticipos_por_dia())
+        ingresos_entregas  = float(db_mongo.pago_entregas_por_dia())
         ingresos_total     = ingresos_tienda + ingresos_extras + ingresos_anticipos + ingresos_entregas 
         ganancias_virtual  = ingresos_total - ingresos_extras 
         ganancias_real     = simpledialog.askfloat("Input", "¿Cuánto fue el dinero en caja?" , parent=self.root)
         perdidas_prop      = ganancias_real*100/ganancias_virtual
-        db_mysql.guardar_reporte(date.today(), gastos_extras, 
+        try : db_mysql.guardar_reporte(date.today(), gastos_extras, 
                                     ingresos_extras+ingresos_anticipos+ingresos_entregas,ingresos_tienda, 
                                     ingresos_total, ganancias_virtual, ganancias_real, perdidas_prop)
+        except: pass
         report = {
             'gastos_extras': gastos_extras, 
             'ingresos_tienda': ingresos_tienda, 
@@ -276,7 +277,7 @@ class Admin_window(Frame):
             'ingresos_entregas': ingresos_entregas,
             'ganancias_virtual': ganancias_virtual, 
             'ganancias_real': ganancias_real, 
-            'perdidas (%)': perdidas_prop,
+            'perdidas (%)': perdidas_prop
         }
         newWindow = Toplevel(self.root)
         Frame.__init__(self)
@@ -284,7 +285,7 @@ class Admin_window(Frame):
         newWindow.title('Tabla')
         f = Frame(newWindow)
         f.pack(fill=BOTH,expand=1) 
-        df = pd.DataFrame(report)
+        df = pd.DataFrame(report, index=[0])
         pt = Table(f, dataframe=df,showtoolbar=True, showstatusbar=True)
         pt.show()
 
