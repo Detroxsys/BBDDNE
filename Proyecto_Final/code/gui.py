@@ -9,11 +9,11 @@ from tkcalendar import *
 import pandas as pd 
 import numpy as np
 from pandastable import Table, TableModel 
-from datetime import datetime, timedelta
+from datetime import datetime,date,  time, timedelta
 
 #Conexiones a las bases de datos
 import mysql_queries as db_mysql
-
+import mongo_queries as db_mongo
 #Usuario logueado en cache
 supertemporalUser=None
 isAdmin = False
@@ -347,7 +347,16 @@ class RegisterBox_window(Frame):
         pass
 
     def gotoGetPedidos(self): 
-        pass
+        newWindow = Toplevel(self.root)
+        Frame.__init__(self)
+        newWindow.geometry('600x400+200+100')
+        newWindow.title('Tabla')
+        f = Frame(newWindow)
+        f.pack(fill=BOTH,expand=1) 
+        otro_dia_1 = datetime.strptime('2022-06-08 12:45:00', "%Y-%m-%d %H:%M:%S")
+        df = db_mongo.consultar_entregas(otro_dia_1)
+        pt = Table(f, dataframe=df,showtoolbar=True, showstatusbar=True)
+        pt.show()
 
     def exit(self): 
         global supertemporalUser
@@ -580,17 +589,31 @@ class MakeOrder_window(Frame):
         self.trv.configure(xscrollcommand = verscrlbar.set)
         verscrlbar.pack(side ='right', fill ='x')
 
+        self.ListaCompra = []
+        self.Total = 0 
+
     def aggToOrder(self): 
         producto = self.txtnombre.get()
         cantidad = self.txtcantidad.get()
+        if producto =="" or cantidad=="" :
+            return 
+        
+        cantidad = int(cantidad)
+        subtotal = float(products_price[producto]*cantidad)
+        self.Total += subtotal
+        self.ListaCompra.append((producto, cantidad, subtotal))
+        print(self.ListaCompra)
         self.trv.insert("",'end',
-                values=(producto, cantidad, 30.0))
+                values=(producto, cantidad, subtotal))
         self.cont_iid +=1
-        total=Label(self.frame, text=f"Total: 30.0", font =("sans-serif", 14, "bold"), fg="black", bg="white")
+        total=Label(self.frame, text=f"Total: {self.Total}", font =("sans-serif", 14, "bold"), fg="black", bg="white")
         total.place(x=250, y=190)
 
     def makeOrder(self): 
-        pass
+        db_mongo.nueva_orden(self.ListaCompra)
+        messagebox.showinfo("Éxito", "Orden registrada")
+        self.root.switch_frame(RegisterBox_window)
+
     
     def exit(self): 
         self.root.switch_frame(RegisterBox_window)
@@ -678,14 +701,14 @@ class MakePedido_window(Frame):
         get_str3 = Label(frame3, text="Fecha Entrega", font =("sans-serif", 20, "bold"), fg="darkorange", bg="white")
         get_str3.place(x=20, y=20)
 
-        cal = Calendar(
+        self.cal = Calendar(
                 frame3, 
                 selectmode="day", 
                 year=2022, 
                 month=5,
                 day=6
                 )
-        cal.pack(pady=60)
+        self.cal.pack(pady=60)
 
         self.hour_sb = ttk.Spinbox(frame3,from_=7,to=20,width=40, wrap=True, state="readonly",font=('sans-serif', 20),justify=CENTER)
         self.min_sb = ttk.Spinbox(frame3,from_=0,to=59,width=40, wrap=True, state="readonly", font=('sans-serif', 20),justify=CENTER)
@@ -706,16 +729,38 @@ class MakePedido_window(Frame):
         self.txtcliente = ttk.Entry(frame3, font =("sans-serif", 13, "bold"))
         self.txtcliente.place(x=100, y=410, width=100)
 
+        self.ListaCompra = []
+        self.Total = 0 
+
     def aggToOrder(self): 
         producto = self.txtnombre.get()
         cantidad = self.txtcantidad.get()
+        if producto =="" or cantidad=="" :
+            return 
+        
+        cantidad = int(cantidad)
+        subtotal = float(products_price[producto]*cantidad)
+        self.Total += subtotal
+        self.ListaCompra.append((producto, cantidad, subtotal))
+        print(self.ListaCompra)
         self.trv.insert("",'end',
-                values=(producto, cantidad, 30.0))
+                values=(producto, cantidad, subtotal))
         self.cont_iid +=1
-        total=Label(self.frame, text=f"Total: 30.0", font =("sans-serif", 14, "bold"), fg="black", bg="white")
+        total=Label(self.frame, text=f"Total: {self.Total}", font =("sans-serif", 14, "bold"), fg="black", bg="white")
         total.place(x=250, y=190)
 
     def makeOrder(self): 
+        if self.Total==0: 
+            return 
+        phone = self.txtphonenumber.get()
+        nombre = self.txtcliente.get()
+        
+        if phone =="" or nombre =="": 
+            return
+        
+        datepedido           =self.cal.get_date()
+        int_hour       = int(self.hour_sb.get())
+        int_minutes    = int(self.min_sb.get())  
         pass
     
     def exit(self): 
